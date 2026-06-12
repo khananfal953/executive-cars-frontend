@@ -28,7 +28,7 @@ export default function AuctionProfilePage() {
     setTimeout(() => setSaved(false), 3000)
   }
 
-  const handleLogout = () => { logout(); navigate('/auction/login') }
+  const handleLogout = () => { logout(); navigate('/auction') }
 
   const memberSince = '2026-01-15'
   const memberExpiry = '2027-01-15'
