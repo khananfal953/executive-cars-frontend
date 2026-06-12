@@ -22,6 +22,7 @@ export default function AdminUploadUsedCarPage() {
   const [report, setReport] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -45,6 +46,7 @@ export default function AdminUploadUsedCarPage() {
     })
     setImages([])
     setReport(null)
+    setResetKey(k => k + 1)
     setTimeout(() => setSaved(false), 4000)
   }
 
@@ -223,7 +225,7 @@ export default function AdminUploadUsedCarPage() {
                 <Upload className="w-10 h-10 text-gray-500 group-hover:text-primary mx-auto mb-3 transition-colors" />
                 <p className="text-gray-500 text-sm">Drag & drop images or click to upload</p>
                 <p className="text-gray-600 text-xs mt-1">Max 6 images, JPG/PNG</p>
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImages} />
+                <input key={resetKey} type="file" accept="image/*" multiple className="hidden" onChange={handleImages} />
               </label>
               {images.length > 0 && (
                 <div className="grid grid-cols-3 gap-2">
@@ -245,7 +247,7 @@ export default function AdminUploadUsedCarPage() {
               <label className="block w-full border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-primary/40 transition-colors group">
                 <FileText className="w-8 h-8 text-gray-500 group-hover:text-primary mx-auto mb-2 transition-colors" />
                 <p className="text-gray-500 text-sm">{report ? report.name : 'Upload inspection report PDF'}</p>
-                <input type="file" accept=".pdf" className="hidden" onChange={e => setReport(e.target.files[0])} />
+                <input key={`pdf-${resetKey}`} type="file" accept=".pdf" className="hidden" onChange={e => setReport(e.target.files[0])} />
               </label>
             </div>
 
