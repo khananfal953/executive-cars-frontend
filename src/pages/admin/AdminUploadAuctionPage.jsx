@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Upload, X, FileText, CheckCircle, Gavel, ChevronDown } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import AdminLayout from '../../components/AdminLayout.jsx'
 
 const brands = ['Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai', 'Mitsubishi', 'Nissan', 'BMW', 'Mercedes', 'Audi']
@@ -14,7 +13,6 @@ const models = {
 const colors = ['White', 'Black', 'Silver', 'Grey', 'Red', 'Blue', 'Brown', 'Green', 'Orange']
 
 export default function AdminUploadAuctionPage() {
-  const navigate = useNavigate()
   const [form, setForm] = useState({
     make: '', model: '', year: '', mileage: '', engine: '',
     transmission: 'Auto', fuel: 'Petrol', color: '',
@@ -40,12 +38,28 @@ export default function AdminUploadAuctionPage() {
     await new Promise(r => setTimeout(r, 1500))
     setSaving(false)
     setSaved(true)
-    setTimeout(() => navigate('/admin/auction-list'), 1500)
+    setForm({
+      make: '', model: '', year: '', mileage: '', engine: '',
+      transmission: 'Auto', fuel: 'Petrol', color: '',
+      basePrice: '', startDate: '', endDate: '', notes: '',
+    })
+    setImages([])
+    setReport(null)
+    setTimeout(() => setSaved(false), 4000)
   }
 
   return (
     <AdminLayout title="Upload Car to Auction">
       <form onSubmit={handleSubmit}>
+        {saved && (
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-2xl flex items-center gap-3 shadow-sm">
+            <CheckCircle className="w-5 h-5 shrink-0" />
+            <div>
+              <p className="font-semibold text-sm">Car listed on auction platform!</p>
+              <p className="text-xs text-green-600 mt-0.5">Fill the form again to list another car.</p>
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column */}
           <div className="space-y-5">
@@ -267,7 +281,7 @@ export default function AdminUploadAuctionPage() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => navigate('/admin/auction-list')}
+                onClick={() => window.history.back()}
                 className="btn-ghost flex-1 py-3.5 rounded-xl font-bold text-sm"
               >
                 Cancel
