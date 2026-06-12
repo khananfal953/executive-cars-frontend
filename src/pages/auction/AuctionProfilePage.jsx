@@ -1,0 +1,190 @@
+import React, { useState } from 'react'
+import { User, Mail, Phone, Calendar, Shield, Edit3, Save, X, Key, CheckCircle, LogOut } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import AuctionLayout from '../../components/AuctionLayout.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
+
+export default function AuctionProfilePage() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const [editing, setEditing] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [form, setForm] = useState({
+    name: user?.name || 'Ahmed Raza',
+    email: user?.email || 'buyer@executivecars.pk',
+    phone: '+92 300 1234567',
+    cnic: '35202-1234567-1',
+    city: 'Islamabad',
+  })
+  const [passForm, setPassForm] = useState({ current: '', newPass: '', confirm: '' })
+  const [showPassSection, setShowPassSection] = useState(false)
+
+  const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleSave = () => {
+    setSaved(true)
+    setEditing(false)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  const handleLogout = () => { logout(); navigate('/auction/login') }
+
+  const memberSince = '2026-01-15'
+  const memberExpiry = '2027-01-15'
+  const memberId = 'EC-A7B3C9D2'
+
+  return (
+    <AuctionLayout title="My Profile">
+      <div className="max-w-2xl">
+        {/* Profile card */}
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-5">
+          {/* Header banner */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 h-24 relative">
+            <div className="absolute -bottom-10 left-6">
+              <div className="w-20 h-20 bg-white rounded-2xl border-4 border-white shadow-lg flex items-center justify-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-2xl">
+                  {(form.name || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                </div>
+              </div>
+            </div>
+            <div className="absolute top-3 right-4 flex gap-2">
+              {!editing ? (
+                <button onClick={() => setEditing(true)}
+                  className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors">
+                  <Edit3 className="w-3 h-3" /> Edit Profile
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button onClick={handleSave}
+                    className="bg-white text-blue-600 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 hover:bg-blue-50 transition-colors">
+                    <Save className="w-3 h-3" /> Save
+                  </button>
+                  <button onClick={() => setEditing(false)}
+                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors">
+                    <X className="w-3 h-3" /> Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-14 px-6 pb-6">
+            {saved && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-2.5 mb-4 text-sm font-medium">
+                <CheckCircle className="w-4 h-4" /> Profile updated successfully!
+              </div>
+            )}
+
+            <div className="mb-4">
+              {editing ? (
+                <input value={form.name} onChange={e => update('name', e.target.value)}
+                  className="input-light text-xl font-black w-full mb-1" />
+              ) : (
+                <h2 className="text-gray-900 font-black text-xl">{form.name}</h2>
+              )}
+              <p className="text-blue-600 text-sm font-medium">Executive Member</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { icon: Mail,     label: 'Email',   key: 'email',  type: 'email' },
+                { icon: Phone,    label: 'Phone',   key: 'phone',  type: 'tel'   },
+                { icon: Shield,   label: 'CNIC',    key: 'cnic',   type: 'text'  },
+                { icon: User,     label: 'City',    key: 'city',   type: 'text'  },
+              ].map(f => (
+                <div key={f.key}>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5 flex items-center gap-1">
+                    <f.icon className="w-3 h-3" /> {f.label}
+                  </label>
+                  {editing ? (
+                    <input type={f.type} value={form[f.key]} onChange={e => update(f.key, e.target.value)}
+                      className="input-light text-sm" />
+                  ) : (
+                    <p className="text-gray-900 font-medium text-sm bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">
+                      {form[f.key]}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Membership card */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 mb-5 text-white shadow-lg shadow-blue-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-200" />
+              <span className="font-bold text-sm uppercase tracking-wider text-blue-100">Executive Membership</span>
+            </div>
+            <span className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-semibold">Active</span>
+          </div>
+          <p className="text-white font-black text-2xl font-mono mb-1">{memberId}</p>
+          <div className="flex items-center justify-between mt-3 text-blue-100 text-sm">
+            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Since {memberSince}</span>
+            <span>Expires {memberExpiry}</span>
+          </div>
+          <div className="mt-4 pt-4 border-t border-white/20 flex items-center justify-between">
+            <div>
+              <p className="text-blue-200 text-xs">Days Remaining</p>
+              <p className="text-white font-black text-3xl">287</p>
+            </div>
+            <button className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
+              Renew Membership
+            </button>
+          </div>
+        </div>
+
+        {/* Change Password */}
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-5">
+          <button
+            onClick={() => setShowPassSection(!showPassSection)}
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center">
+                <Key className="w-4 h-4 text-gray-600" />
+              </div>
+              <span className="text-gray-900 font-semibold">Change Password</span>
+            </div>
+            <span className="text-gray-400 text-sm">{showPassSection ? '▲' : '▼'}</span>
+          </button>
+
+          {showPassSection && (
+            <div className="px-6 pb-6 border-t border-gray-100 pt-4 space-y-4">
+              {[
+                { label: 'Current Password', key: 'current' },
+                { label: 'New Password',     key: 'newPass' },
+                { label: 'Confirm Password', key: 'confirm' },
+              ].map(f => (
+                <div key={f.key}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                  <input type="password" value={passForm[f.key]}
+                    onChange={e => setPassForm(p => ({ ...p, [f.key]: e.target.value }))}
+                    className="input-light" placeholder="••••••••" />
+                </div>
+              ))}
+              <button className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm">
+                Update Password
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Danger zone */}
+        <div className="bg-white border border-red-200 rounded-2xl shadow-sm p-6">
+          <h3 className="text-gray-900 font-bold mb-4 flex items-center gap-2">
+            <LogOut className="w-4 h-4 text-red-500" /> Account Actions
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={handleLogout}
+              className="bg-red-50 border border-red-200 text-red-600 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-100 transition-colors flex items-center gap-2">
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </AuctionLayout>
+  )
+}

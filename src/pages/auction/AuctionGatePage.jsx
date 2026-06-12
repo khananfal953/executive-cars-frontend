@@ -1,0 +1,124 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { LogIn, Crown, CheckCircle, Gavel, Shield, Star, Users } from 'lucide-react'
+import Navbar from '../../components/Navbar.jsx'
+import Footer from '../../components/Footer.jsx'
+
+const TEST_ACCOUNTS = [
+  { name: 'Ahmed Raza',      email: 'buyer@executivecars.pk', password: 'buyer123' },
+  { name: 'Hasnain',         email: 'hasnain@test.com',       password: 'test123'  },
+  { name: 'Anfal Ahmad',     email: 'anfal@test.com',         password: 'test123'  },
+]
+
+export default function AuctionGatePage() {
+  return (
+    <div className="min-h-screen bg-white">
+      <Navbar />
+
+      {/* Hero */}
+      <section className="bg-[#0f172a] pt-24 pb-20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl" />
+        </div>
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 bg-blue-500/15 border border-blue-400/30 rounded-full px-4 py-1.5 mb-6">
+            <Gavel className="w-4 h-4 text-blue-400" />
+            <span className="text-blue-300 text-sm font-medium">Live Auctions — Members Only</span>
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-black text-white mb-4">
+            Exclusive Car Auctions<br />
+            <span className="animated-gradient-text">Members Only</span>
+          </h1>
+          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+            Bid on professionally inspected vehicles in real-time. Transparent, competitive, and fully digital.
+          </p>
+        </div>
+      </section>
+
+      {/* Cards + Test Accounts */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {/* Already a Member */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-8 card-hover shadow-sm group">
+              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
+                <LogIn className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-gray-900 font-bold text-xl mb-2 text-center">Already A Member</h3>
+              <p className="text-gray-500 text-sm mb-6 text-center">
+                Welcome back. Login to access live auctions and place your bids.
+              </p>
+              <Link to="/auction/login"
+                className="btn-primary w-full py-3 rounded-xl font-semibold text-sm block text-center shadow-md shadow-blue-200">
+                Login to Auction
+              </Link>
+            </div>
+
+            {/* Become a Member */}
+            <div className="bg-white border-2 border-blue-200 rounded-2xl p-8 card-hover shadow-sm group relative overflow-hidden">
+              <div className="absolute top-3 right-3 badge-blue text-xs px-2 py-0.5 rounded-full font-semibold">New</div>
+              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
+                <Crown className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-gray-900 font-bold text-xl mb-2 text-center">Become A Member</h3>
+              <ul className="space-y-2 mb-6">
+                {['Real-Time Bidding', 'Inspection Reports', 'Exclusive Listings', 'Priority Access'].map(perk => (
+                  <li key={perk} className="flex items-center gap-2 text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />{perk}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/auction/signup"
+                className="btn-primary w-full py-3 rounded-xl font-semibold text-sm block text-center shadow-md shadow-blue-200">
+                Sign Up — PKR 4,999/yr
+              </Link>
+            </div>
+          </div>
+
+          {/* Test Accounts */}
+          <div className="bg-white border border-blue-200 rounded-2xl p-6 shadow-sm mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-5 h-5 text-blue-600" />
+              <h3 className="text-gray-900 font-bold">Test Accounts — Click Any to Login</h3>
+              <span className="badge-blue text-xs px-2 py-0.5 rounded-full font-semibold ml-auto">Demo</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {TEST_ACCOUNTS.map(acc => (
+                <Link key={acc.email} to="/auction/login"
+                  className="flex flex-col bg-blue-50 border border-blue-200 rounded-xl p-4 hover:bg-blue-100 hover:border-blue-400 transition-all group">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+                      {acc.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    </div>
+                    <span className="text-gray-900 font-semibold text-sm">{acc.name}</span>
+                  </div>
+                  <p className="text-gray-500 text-xs font-mono">{acc.email}</p>
+                  <p className="text-gray-400 text-xs font-mono">Pass: {acc.password}</p>
+                  <span className="text-blue-600 text-xs font-semibold mt-2 group-hover:underline">
+                    Click to use →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Trust badges */}
+          <div className="flex items-center justify-center gap-8 flex-wrap">
+            {[
+              { icon: Shield, label: 'Secure Payments' },
+              { icon: CheckCircle, label: 'Verified Cars' },
+              { icon: Star, label: 'Trusted Platform' },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex items-center gap-2 text-gray-500 text-sm">
+                <Icon className="w-4 h-4 text-blue-600" />{label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  )
+}
