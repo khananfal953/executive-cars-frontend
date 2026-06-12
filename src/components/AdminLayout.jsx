@@ -19,6 +19,8 @@ export default function AdminLayout({ children, title }) {
   const { logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  const handleLogout = () => { logout(); navigate('/admin') }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -47,7 +49,7 @@ export default function AdminLayout({ children, title }) {
           ))}
         </nav>
         <div className="p-4 border-t border-gray-200">
-          <button onClick={() => { logout(); navigate('/admin') }}
+          <button onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all w-full">
             <LogOut className="w-4 h-4" />Logout
           </button>
