@@ -10,7 +10,7 @@ const LOGIN_PATHS = {
 export default function ProtectedRoute({ role, children }) {
   const { user } = useAuth()
   if (!user || user.role !== role) {
-    return <Navigate to={LOGIN_PATHS[role]} replace />
+    return <Navigate to={LOGIN_PATHS[role] ?? '/'} replace />
   }
   return children
 }
