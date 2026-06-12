@@ -37,6 +37,8 @@ import AdminUploadUsedCarPage from './pages/admin/AdminUploadUsedCarPage.jsx'
 import SellerLoginPage from './pages/seller/SellerLoginPage.jsx'
 import SellerDashboardPage from './pages/seller/SellerDashboardPage.jsx'
 
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+
 function BannerWrapper() {
   const location = useLocation()
   const hidePaths = [
@@ -67,26 +69,26 @@ export default function App() {
           <Route path="/auction/payment" element={<AuctionPaymentPage />} />
           <Route path="/auction/payment-success" element={<AuctionPaymentSuccessPage />} />
           <Route path="/auction/login" element={<AuctionLoginPage />} />
-          <Route path="/auction/dashboard" element={<AuctionDashboardPage />} />
-          <Route path="/auction/live" element={<AuctionLiveAuctionsPage />} />
-          <Route path="/auction/my-bids" element={<AuctionMyBidsPage />} />
-          <Route path="/auction/won-cars" element={<AuctionWonCarsPage />} />
-          <Route path="/auction/profile" element={<AuctionProfilePage />} />
-          <Route path="/auction/car/:id" element={<AuctionCarDetailPage />} />
+          <Route path="/auction/dashboard" element={<ProtectedRoute role="buyer"><AuctionDashboardPage /></ProtectedRoute>} />
+          <Route path="/auction/live"      element={<ProtectedRoute role="buyer"><AuctionLiveAuctionsPage /></ProtectedRoute>} />
+          <Route path="/auction/my-bids"   element={<ProtectedRoute role="buyer"><AuctionMyBidsPage /></ProtectedRoute>} />
+          <Route path="/auction/won-cars"  element={<ProtectedRoute role="buyer"><AuctionWonCarsPage /></ProtectedRoute>} />
+          <Route path="/auction/profile"   element={<ProtectedRoute role="buyer"><AuctionProfilePage /></ProtectedRoute>} />
+          <Route path="/auction/car/:id"   element={<ProtectedRoute role="buyer"><AuctionCarDetailPage /></ProtectedRoute>} />
 
           {/* Admin */}
           <Route path="/admin" element={<AdminLoginPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/users" element={<AdminUsersPage />} />
-          <Route path="/admin/bookings" element={<AdminBookingsPage />} />
-          <Route path="/admin/auction-list" element={<AdminAuctionListPage />} />
-          <Route path="/admin/used-cars-list" element={<AdminUsedCarsListPage />} />
-          <Route path="/admin/upload-auction" element={<AdminUploadAuctionPage />} />
-          <Route path="/admin/upload-used-car" element={<AdminUploadUsedCarPage />} />
+          <Route path="/admin/dashboard"       element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/admin/users"           element={<ProtectedRoute role="admin"><AdminUsersPage /></ProtectedRoute>} />
+          <Route path="/admin/bookings"        element={<ProtectedRoute role="admin"><AdminBookingsPage /></ProtectedRoute>} />
+          <Route path="/admin/auction-list"    element={<ProtectedRoute role="admin"><AdminAuctionListPage /></ProtectedRoute>} />
+          <Route path="/admin/used-cars-list"  element={<ProtectedRoute role="admin"><AdminUsedCarsListPage /></ProtectedRoute>} />
+          <Route path="/admin/upload-auction"  element={<ProtectedRoute role="admin"><AdminUploadAuctionPage /></ProtectedRoute>} />
+          <Route path="/admin/upload-used-car" element={<ProtectedRoute role="admin"><AdminUploadUsedCarPage /></ProtectedRoute>} />
 
           {/* Seller */}
           <Route path="/seller/login" element={<SellerLoginPage />} />
-          <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
+          <Route path="/seller/dashboard" element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
