@@ -36,3 +36,7 @@ Thumbs.db
 
 # Test coverage
 coverage
+
+# Planning and internal docs
+docs
+.planning
