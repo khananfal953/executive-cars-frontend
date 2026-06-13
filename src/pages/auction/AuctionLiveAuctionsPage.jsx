@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Gavel, Flame, Timer, Search, SlidersHorizontal } from 'lucide-react'
+import { Gavel, Flame, Search, SlidersHorizontal } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
+import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
 
 const ALL_AUCTIONS = [
@@ -15,29 +16,6 @@ const ALL_AUCTIONS = [
   { id: 8, make: 'Honda',    model: 'HR-V',         year: 2021, km: 28000,  engine: '1800cc', currentBid: 5200000,  baseBid: 4800000,  bidders: 4,  endsIn: { h: 6,  m: 40, s: 0  }, hot: false, img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&q=80' },
   { id: 9, make: 'Toyota',   model: 'Yaris',        year: 2023, km: 8000,   engine: '1300cc', currentBid: 3100000,  baseBid: 2800000,  bidders: 3,  endsIn: { h: 24, m: 0,  s: 0  }, hot: false, img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80' },
 ]
-
-function CountdownTimer({ endsIn }) {
-  const [time, setTime] = useState(endsIn)
-  const isUrgent = time.h === 0 && time.m < 60
-  useEffect(() => {
-    const t = setInterval(() => {
-      setTime(prev => {
-        let { h, m, s } = prev
-        s--
-        if (s < 0) { s = 59; m-- }
-        if (m < 0) { m = 59; h-- }
-        if (h < 0) return { h: 0, m: 0, s: 0 }
-        return { h, m, s }
-      })
-    }, 1000)
-    return () => clearInterval(t)
-  }, [])
-  return (
-    <span className={`font-mono text-xs font-bold ${isUrgent ? 'text-red-400' : 'text-white'}`}>
-      {String(time.h).padStart(2,'0')}:{String(time.m).padStart(2,'0')}:{String(time.s).padStart(2,'0')}
-    </span>
-  )
-}
 
 export default function AuctionLiveAuctionsPage() {
   const [search, setSearch] = useState('')
@@ -108,8 +86,7 @@ export default function AuctionLiveAuctionsPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Live
                 </span>
               </div>
-              <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/50 rounded-lg px-2 py-1">
-                <Timer className="w-3 h-3 text-white" />
+              <div className="absolute bottom-3 left-3 bg-black/50 rounded-lg px-2 py-1">
                 <CountdownTimer endsIn={car.endsIn} />
               </div>
             </div>

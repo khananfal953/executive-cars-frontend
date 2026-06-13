@@ -6,6 +6,7 @@ import {
   TrendingUp, Zap, Bell
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
 
 // ── Dummy bidders that auto-bid ──────────────────────────────────────────────
@@ -61,38 +62,6 @@ const CAR_DATA = {
     ],
     desc: 'Kia Sportage in excellent condition. Full service history, original parts. Islamabad registered.',
   },
-}
-
-function CountdownTimer({ endsIn }) {
-  const [time, setTime] = useState(endsIn)
-  const isUrgent = time.h === 0 && time.d === 0 && time.m < 10
-  useEffect(() => {
-    const t = setInterval(() => {
-      setTime(prev => {
-        let { d, h, m, s } = prev
-        s--
-        if (s < 0) { s = 59; m-- }
-        if (m < 0) { m = 59; h-- }
-        if (h < 0) { h = 23; d-- }
-        if (d < 0) return { d: 0, h: 0, m: 0, s: 0 }
-        return { d, h, m, s }
-      })
-    }, 1000)
-    return () => clearInterval(t)
-  }, [])
-  const pad = n => String(n).padStart(2, '0')
-  return (
-    <div className="flex gap-2">
-      {[{ v: time.d, l: 'Days' }, { v: time.h, l: 'Hrs' }, { v: time.m, l: 'Min' }, { v: time.s, l: 'Sec' }].map(({ v, l }) => (
-        <div key={l} className="text-center">
-          <div className={`rounded-xl px-3 py-2 font-black text-xl font-mono min-w-[52px] ${
-            isUrgent ? 'bg-red-50 border border-red-300 text-red-600' : 'bg-gray-100 border border-gray-200 text-gray-900'
-          }`}>{pad(v)}</div>
-          <div className="text-xs text-gray-400 mt-1">{l}</div>
-        </div>
-      ))}
-    </div>
-  )
 }
 
 export default function AuctionCarDetailPage() {
@@ -313,7 +282,7 @@ export default function AuctionCarDetailPage() {
                   <Timer className="w-4 h-4 text-blue-600" />
                   <span className="text-gray-700 text-sm font-semibold">Auction ends in</span>
                 </div>
-                <CountdownTimer endsIn={car.endsIn} />
+                <CountdownTimer endsIn={car.endsIn} showDays={true} />
               </div>
 
               {/* Bid form */}

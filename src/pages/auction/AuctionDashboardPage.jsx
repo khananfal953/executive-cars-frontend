@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Gavel, TrendingUp, Trophy, Clock, Flame, Timer, ArrowUpRight } from 'lucide-react'
+import { Gavel, TrendingUp, Trophy, Clock, Flame, ArrowUpRight } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
+import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
 
 const AUCTIONS = [
@@ -12,30 +13,6 @@ const AUCTIONS = [
   { id: 5, make: 'Hyundai', model: 'Tucson',       year: 2021, currentBid: 6700000,  bidders: 9,  endsIn: { h: 1, m: 22, s: 18 }, hot: true,  img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80' },
   { id: 6, make: 'Suzuki',  model: 'Jimny',        year: 2023, currentBid: 4900000,  bidders: 5,  endsIn: { h: 8, m: 0, s: 0 },   hot: false, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80' },
 ]
-
-function CountdownTimer({ endsIn }) {
-  const [time, setTime] = useState(endsIn)
-  const isUrgent = time.h === 0 && time.m < 60
-  useEffect(() => {
-    const t = setInterval(() => {
-      setTime(prev => {
-        let { h, m, s } = prev
-        s--
-        if (s < 0) { s = 59; m-- }
-        if (m < 0) { m = 59; h-- }
-        if (h < 0) return { h: 0, m: 0, s: 0 }
-        return { h, m, s }
-      })
-    }, 1000)
-    return () => clearInterval(t)
-  }, [])
-  return (
-    <div className={`flex items-center gap-1 text-xs font-mono font-bold ${isUrgent ? 'text-red-400' : 'text-white'}`}>
-      <Timer className="w-3 h-3" />
-      {String(time.h).padStart(2,'0')}:{String(time.m).padStart(2,'0')}:{String(time.s).padStart(2,'0')}
-    </div>
-  )
-}
 
 const stats = [
   { icon: Gavel,     label: 'Active Auctions', value: 6,   bg: 'bg-blue-50',   color: 'text-blue-600',   border: 'border-blue-200'   },
