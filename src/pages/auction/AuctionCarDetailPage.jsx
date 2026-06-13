@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx'
 import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
+import { ALL_AUCTIONS } from '../../data/auctions.js'
 
 // ── Dummy bidders that auto-bid ──────────────────────────────────────────────
 const AUTO_BIDDERS = [
@@ -19,55 +20,10 @@ const AUTO_BIDDERS = [
   { name: 'ZK***', avatar: 'ZK' },
 ]
 
-const CAR_DATA = {
-  1: {
-    make: 'Toyota', model: 'Land Cruiser', year: 2020, km: 45000,
-    engine: '4000cc', fuel: 'Petrol', transmission: 'Auto', color: 'White',
-    startBid: 11000000, bidders: 14,
-    endsIn: { d: 0, h: 2, m: 34, s: 12 },
-    img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80',
-    imgs: [
-      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80',
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80',
-      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80',
-      'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80',
-    ],
-    desc: 'Excellent condition Toyota Land Cruiser with full service history. Single owner, all original parts. Comprehensive inspection report available. Islamabad registered, all taxes paid.',
-  },
-  2: {
-    make: 'Honda', model: 'Civic', year: 2022, km: 18000,
-    engine: '1500cc', fuel: 'Petrol', transmission: 'Auto', color: 'Black',
-    startBid: 3800000, bidders: 8,
-    endsIn: { d: 0, h: 5, m: 10, s: 45 },
-    img: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80',
-    imgs: [
-      'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400&q=80',
-      'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80',
-      'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&q=80',
-      'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&q=80',
-    ],
-    desc: 'Low mileage Honda Civic in pristine condition. Fully inspected with all documents clear. Original paint, no accidents.',
-  },
-  3: {
-    make: 'Kia', model: 'Sportage', year: 2021, km: 38000,
-    engine: '2000cc', fuel: 'Petrol', transmission: 'Auto', color: 'Red',
-    startBid: 5200000, bidders: 11,
-    endsIn: { d: 0, h: 0, m: 48, s: 30 },
-    img: 'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&q=80',
-    imgs: [
-      'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=400&q=80',
-      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80',
-      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80',
-      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80',
-    ],
-    desc: 'Kia Sportage in excellent condition. Full service history, original parts. Islamabad registered.',
-  },
-}
-
 export default function AuctionCarDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
-  const car = CAR_DATA[id] || CAR_DATA[1]
+  const car = ALL_AUCTIONS.find(a => a.id === Number(id)) || ALL_AUCTIONS[0]
 
   const [currentBid, setCurrentBid] = useState(car.startBid + 500000)
   const [bidAmount, setBidAmount] = useState('')

@@ -3,18 +3,7 @@ import { Search, SlidersHorizontal, Heart, Eye, Fuel, Settings, Gauge, ChevronLe
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { formatPKR } from '../utils/format.js'
-
-const CARS = [
-  { id: 1, make: 'Toyota', model: 'Corolla', year: 2021, km: 42000, price: 3800000, engine: '1800cc', fuel: 'Petrol', transmission: 'Auto', color: 'White', inspected: true, img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80' },
-  { id: 2, make: 'Honda', model: 'Civic', year: 2020, km: 55000, price: 4200000, engine: '1500cc', fuel: 'Petrol', transmission: 'Auto', color: 'Black', inspected: true, img: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400&q=80' },
-  { id: 3, make: 'Suzuki', model: 'Cultus', year: 2022, km: 18000, price: 2100000, engine: '1000cc', fuel: 'Petrol', transmission: 'Manual', color: 'Silver', inspected: true, img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&q=80' },
-  { id: 4, make: 'Kia', model: 'Sportage', year: 2021, km: 38000, price: 6500000, engine: '2000cc', fuel: 'Petrol', transmission: 'Auto', color: 'Red', inspected: true, img: 'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=400&q=80' },
-  { id: 5, make: 'Toyota', model: 'Yaris', year: 2023, km: 12000, price: 3200000, engine: '1300cc', fuel: 'Petrol', transmission: 'Auto', color: 'Blue', inspected: true, img: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&q=80' },
-  { id: 6, make: 'Honda', model: 'HR-V', year: 2020, km: 61000, price: 5800000, engine: '1800cc', fuel: 'Petrol', transmission: 'Auto', color: 'White', inspected: true, img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80' },
-  { id: 7, make: 'Suzuki', model: 'Swift', year: 2022, km: 25000, price: 2600000, engine: '1300cc', fuel: 'Petrol', transmission: 'Manual', color: 'Orange', inspected: true, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80' },
-  { id: 8, make: 'Hyundai', model: 'Tucson', year: 2021, km: 44000, price: 7200000, engine: '2000cc', fuel: 'Petrol', transmission: 'Auto', color: 'Grey', inspected: true, img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80' },
-  { id: 9, make: 'Toyota', model: 'Fortuner', year: 2019, km: 78000, price: 9500000, engine: '2700cc', fuel: 'Petrol', transmission: 'Auto', color: 'Black', inspected: true, img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80' },
-]
+import { CARS } from '../data/cars.js'
 
 const brands = ['All', 'Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai']
 const fuelTypes = ['Petrol', 'Diesel', 'CNG', 'Hybrid']

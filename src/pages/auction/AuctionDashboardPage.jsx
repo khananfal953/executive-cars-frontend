@@ -4,15 +4,9 @@ import { Gavel, TrendingUp, Trophy, Clock, Flame, ArrowUpRight } from 'lucide-re
 import AuctionLayout from '../../components/AuctionLayout.jsx'
 import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
+import { ALL_AUCTIONS } from '../../data/auctions.js'
 
-const AUCTIONS = [
-  { id: 1, make: 'Toyota',  model: 'Land Cruiser', year: 2020, currentBid: 12500000, bidders: 14, endsIn: { h: 2, m: 34, s: 12 }, hot: true,  img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80' },
-  { id: 2, make: 'Honda',   model: 'Civic',        year: 2022, currentBid: 4200000,  bidders: 8,  endsIn: { h: 5, m: 10, s: 45 }, hot: false, img: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400&q=80' },
-  { id: 3, make: 'Kia',     model: 'Sportage',     year: 2021, currentBid: 5800000,  bidders: 11, endsIn: { h: 0, m: 48, s: 30 }, hot: true,  img: 'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=400&q=80' },
-  { id: 4, make: 'Toyota',  model: 'Fortuner',     year: 2019, currentBid: 9100000,  bidders: 6,  endsIn: { h: 12, m: 5, s: 0 },  hot: false, img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80' },
-  { id: 5, make: 'Hyundai', model: 'Tucson',       year: 2021, currentBid: 6700000,  bidders: 9,  endsIn: { h: 1, m: 22, s: 18 }, hot: true,  img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80' },
-  { id: 6, make: 'Suzuki',  model: 'Jimny',        year: 2023, currentBid: 4900000,  bidders: 5,  endsIn: { h: 8, m: 0, s: 0 },   hot: false, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80' },
-]
+const AUCTIONS = ALL_AUCTIONS.slice(0, 6)
 
 const stats = [
   { icon: Gavel,     label: 'Active Auctions', value: 6,   bg: 'bg-blue-50',   color: 'text-blue-600',   border: 'border-blue-200'   },

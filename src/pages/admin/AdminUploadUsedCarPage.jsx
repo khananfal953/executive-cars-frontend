@@ -1,15 +1,7 @@
 import React, { useState } from 'react'
 import { Upload, X, FileText, CheckCircle, Car, ChevronDown } from 'lucide-react'
 import AdminLayout from '../../components/AdminLayout.jsx'
-
-const brands = ['Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai', 'Mitsubishi', 'Nissan', 'BMW', 'Mercedes', 'Audi']
-const models = {
-  Toyota: ['Corolla', 'Yaris', 'Fortuner', 'Hilux', 'Land Cruiser', 'Prado'],
-  Honda: ['Civic', 'City', 'HR-V', 'BR-V', 'Accord'],
-  Suzuki: ['Cultus', 'Swift', 'Alto', 'Wagon R', 'Jimny'],
-  Kia: ['Sportage', 'Picanto', 'Stonic', 'Sorento'],
-  Hyundai: ['Tucson', 'Elantra', 'Sonata', 'Santa Fe'],
-}
+import { BRANDS, MODELS } from '../../data/carBrands.js'
 const colors = ['White', 'Black', 'Silver', 'Grey', 'Red', 'Blue', 'Brown', 'Green', 'Orange']
 
 export default function AdminUploadUsedCarPage() {
@@ -80,7 +72,7 @@ export default function AdminUploadUsedCarPage() {
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-blue-500 text-sm appearance-none"
                     >
                       <option value="">Select Make</option>
-                      {brands.map(b => <option key={b} value={b}>{b}</option>)}
+                      {BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                   </div>
@@ -96,7 +88,7 @@ export default function AdminUploadUsedCarPage() {
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-blue-500 text-sm appearance-none disabled:opacity-40"
                     >
                       <option value="">Select Model</option>
-                      {(models[form.make] || []).map(m => <option key={m} value={m}>{m}</option>)}
+                      {(MODELS[form.make] || []).map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                   </div>
