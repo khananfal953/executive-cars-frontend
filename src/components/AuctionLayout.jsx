@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Gavel, TrendingUp, Trophy, User, LogOut, Bell, Menu, X, Car } from 'lucide-react'
+import Logo from './Logo.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const navItems = [
@@ -25,11 +26,7 @@ export default function AuctionLayout({ children, title }) {
       <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-60 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-5 border-b border-gray-200">
           <Link to="/" className="flex items-center gap-2">
-            <svg className="w-7 h-7" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="8" fill="#2563eb"/>
-              <path d="M12 20L20 12L28 20L20 28L12 20Z" fill="white"/>
-              <circle cx="20" cy="20" r="3" fill="#2563eb"/>
-            </svg>
+            <Logo />
             <div>
               <span className="text-gray-900 font-bold text-sm block">Executive <span className="primary-text">Cars</span></span>
               <span className="text-gray-400 text-xs">Member Portal</span>

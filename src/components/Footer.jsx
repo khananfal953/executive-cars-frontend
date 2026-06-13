@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MapPin, Phone, Mail, Instagram, Facebook, Youtube, Linkedin, Send } from 'lucide-react'
+import Logo from './Logo.jsx'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
@@ -11,11 +12,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <svg className="w-8 h-8" viewBox="0 0 40 40" fill="none">
-                <rect width="40" height="40" rx="8" fill="#2563eb"/>
-                <path d="M12 20L20 12L28 20L20 28L12 20Z" fill="white"/>
-                <circle cx="20" cy="20" r="3" fill="#2563eb"/>
-              </svg>
+              <Logo className="w-8 h-8" />
               <div className="flex flex-col">
                 <span className="text-gray-900 font-bold text-base leading-none">Executive</span>
                 <span className="text-primary text-xs font-semibold leading-none">Cars</span>
