@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Search, Plus, Pencil, Trash2, X, AlertTriangle, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const AUCTIONS = [
   { id: 1, make: 'Toyota', model: 'Land Cruiser', year: 2020, basePrice: 11000000, currentBid: 12500000, endDate: '2026-05-20', status: 'Active' },
@@ -10,12 +11,6 @@ const AUCTIONS = [
   { id: 4, make: 'Toyota', model: 'Fortuner', year: 2019, basePrice: 8500000, currentBid: 9100000, endDate: '2026-05-28', status: 'Active' },
   { id: 5, make: 'Hyundai', model: 'Tucson', year: 2021, basePrice: 6000000, currentBid: 6700000, endDate: '2026-05-18', status: 'Ended' },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 export default function AdminAuctionListPage() {
   const [auctions, setAuctions] = useState(AUCTIONS)

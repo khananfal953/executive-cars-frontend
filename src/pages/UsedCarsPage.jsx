@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Search, SlidersHorizontal, Heart, Eye, Fuel, Settings, Gauge, ChevronLeft, ChevronRight, CheckCircle, X } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
+import { formatPKR } from '../utils/format.js'
 
 const CARS = [
   { id: 1, make: 'Toyota', model: 'Corolla', year: 2021, km: 42000, price: 3800000, engine: '1800cc', fuel: 'Petrol', transmission: 'Auto', color: 'White', inspected: true, img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80' },
@@ -17,12 +18,6 @@ const CARS = [
 
 const brands = ['All', 'Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai']
 const fuelTypes = ['Petrol', 'Diesel', 'CNG', 'Hybrid']
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 export default function UsedCarsPage() {
   const [selectedBrands, setSelectedBrands] = useState(['All'])

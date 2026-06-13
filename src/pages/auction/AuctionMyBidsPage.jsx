@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, ArrowUpRight } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const MY_BIDS = [
   { id: 1, car: 'Toyota Land Cruiser 2020', img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=200&q=80', myBid: 12500000, currentBid: 12500000, status: 'Leading',  endsIn: '2h 34m', bidders: 14 },
@@ -11,12 +12,6 @@ const MY_BIDS = [
   { id: 5, car: 'BMW 3 Series 2020',        img: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=200&q=80', myBid: 8200000,  currentBid: 8500000,  status: 'Outbid',   endsIn: '3h 15m', bidders: 7  },
   { id: 6, car: 'Hyundai Tucson 2021',      img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&q=80', myBid: 6700000,  currentBid: 6700000,  status: 'Won',      endsIn: 'Ended',  bidders: 9  },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 const statusConfig = {
   Leading: { color: 'badge-green', icon: TrendingUp,   text: 'You are leading' },

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, Flame, Timer, Search, SlidersHorizontal } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const ALL_AUCTIONS = [
   { id: 1, make: 'Toyota',   model: 'Land Cruiser', year: 2020, km: 45000,  engine: '4000cc', currentBid: 12500000, baseBid: 11000000, bidders: 14, endsIn: { h: 2,  m: 34, s: 12 }, hot: true,  img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80' },
@@ -14,12 +15,6 @@ const ALL_AUCTIONS = [
   { id: 8, make: 'Honda',    model: 'HR-V',         year: 2021, km: 28000,  engine: '1800cc', currentBid: 5200000,  baseBid: 4800000,  bidders: 4,  endsIn: { h: 6,  m: 40, s: 0  }, hot: false, img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&q=80' },
   { id: 9, make: 'Toyota',   model: 'Yaris',        year: 2023, km: 8000,   engine: '1300cc', currentBid: 3100000,  baseBid: 2800000,  bidders: 3,  endsIn: { h: 24, m: 0,  s: 0  }, hot: false, img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80' },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 function CountdownTimer({ endsIn }) {
   const [time, setTime] = useState(endsIn)

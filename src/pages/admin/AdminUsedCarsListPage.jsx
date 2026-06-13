@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Search, Plus, Pencil, Trash2, X, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const USED_CARS = [
   { id: 1, make: 'Toyota', model: 'Corolla', year: 2021, km: 42000, price: 3800000, listed: '2026-04-10' },
@@ -11,12 +12,6 @@ const USED_CARS = [
   { id: 5, make: 'Toyota', model: 'Yaris', year: 2023, km: 12000, price: 3200000, listed: '2026-05-01' },
   { id: 6, make: 'Honda', model: 'BR-V', year: 2020, km: 61000, price: 3500000, listed: '2026-05-05' },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 export default function AdminUsedCarsListPage() {
   const [cars, setCars] = useState(USED_CARS)

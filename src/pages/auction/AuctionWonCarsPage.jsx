@@ -1,6 +1,7 @@
 import React from 'react'
 import { Trophy, Download, Phone, CheckCircle, Calendar } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const WON_CARS = [
   {
@@ -24,12 +25,6 @@ const WON_CARS = [
     specs: { km: '42,000 km', engine: '1800cc', transmission: 'Auto', color: 'White' },
   },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 export default function AuctionWonCarsPage() {
   return (

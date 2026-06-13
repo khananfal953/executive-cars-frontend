@@ -6,6 +6,7 @@ import {
   LayoutDashboard, FileText, BarChart3, User
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const MY_BOOKINGS = [
   { id: 1, car: 'Toyota Corolla 2020', date: '2026-05-20', branch: 'F-10 Branch', status: 'Approved', submittedOn: '2026-05-10' },
@@ -24,12 +25,6 @@ const PRICE_HISTORY = [
   { month: 'Apr', price: 3950000 },
   { month: 'May', price: 4100000 },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/seller/dashboard', active: true },

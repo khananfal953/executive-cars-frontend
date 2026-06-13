@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Brain, TrendingUp, ChevronDown, Loader2, Info } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
+import { formatPKR } from '../utils/format.js'
 
 const brands = ['Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai', 'Mitsubishi', 'Nissan', 'BMW', 'Mercedes', 'Audi']
 const models = {
@@ -15,12 +16,6 @@ const models = {
   BMW: ['3 Series', '5 Series', 'X3', 'X5'],
   Mercedes: ['C-Class', 'E-Class', 'GLC', 'GLE'],
   Audi: ['A3', 'A4', 'Q3', 'Q5'],
-}
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(2)} Crore`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
 }
 
 function mockPredict(form) {

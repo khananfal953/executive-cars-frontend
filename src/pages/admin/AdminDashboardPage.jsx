@@ -5,6 +5,7 @@ import {
   Clock, DollarSign, ArrowUpRight, Eye, Plus, BarChart3
 } from 'lucide-react'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const stats = [
   { label: 'Total Members', value: '248', change: '+12 this month', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
@@ -34,12 +35,6 @@ const recentMembers = [
   { name: 'Sara Khan', email: 'sara@example.com', joined: '2025-11-10', status: 'Expired' },
   { name: 'Ahmed Raza', email: 'ahmed@example.com', joined: '2026-03-05', status: 'Active' },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 export default function AdminDashboardPage() {
   return (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, TrendingUp, Trophy, Clock, Flame, Timer, ArrowUpRight } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 const AUCTIONS = [
   { id: 1, make: 'Toyota',  model: 'Land Cruiser', year: 2020, currentBid: 12500000, bidders: 14, endsIn: { h: 2, m: 34, s: 12 }, hot: true,  img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80' },
@@ -11,12 +12,6 @@ const AUCTIONS = [
   { id: 5, make: 'Hyundai', model: 'Tucson',       year: 2021, currentBid: 6700000,  bidders: 9,  endsIn: { h: 1, m: 22, s: 18 }, hot: true,  img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80' },
   { id: 6, make: 'Suzuki',  model: 'Jimny',        year: 2023, currentBid: 4900000,  bidders: 5,  endsIn: { h: 8, m: 0, s: 0 },   hot: false, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80' },
 ]
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
-}
 
 function CountdownTimer({ endsIn }) {
   const [time, setTime] = useState(endsIn)

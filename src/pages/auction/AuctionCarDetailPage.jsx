@@ -6,6 +6,7 @@ import {
   TrendingUp, Zap, Bell
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { formatPKR } from '../../utils/format.js'
 
 // ── Dummy bidders that auto-bid ──────────────────────────────────────────────
 const AUTO_BIDDERS = [
@@ -60,12 +61,6 @@ const CAR_DATA = {
     ],
     desc: 'Kia Sportage in excellent condition. Full service history, original parts. Islamabad registered.',
   },
-}
-
-function formatPKR(n) {
-  if (n >= 10000000) return `${(n / 10000000).toFixed(2)} Cr`
-  if (n >= 100000) return `${(n / 100000).toFixed(1)} Lac`
-  return n.toLocaleString()
 }
 
 function CountdownTimer({ endsIn }) {
