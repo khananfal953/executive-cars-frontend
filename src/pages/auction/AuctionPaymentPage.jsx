@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CreditCard, Lock, Shield, CheckCircle } from 'lucide-react'
+import Logo from '../../components/Logo.jsx'
 
 const benefits = [
   'Unlimited bids on all auctions',
@@ -40,11 +41,7 @@ export default function AuctionPaymentPage() {
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-5">
-            <svg className="w-8 h-8" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="8" fill="#2563eb"/>
-              <path d="M12 20L20 12L28 20L20 28L12 20Z" fill="white"/>
-              <circle cx="20" cy="20" r="3" fill="#2563eb"/>
-            </svg>
+            <Logo className="w-8 h-8" />
             <span className="text-gray-900 font-bold text-lg">Executive <span className="primary-text">Cars</span></span>
           </Link>
           <div className="flex items-center justify-center gap-3 mb-2">

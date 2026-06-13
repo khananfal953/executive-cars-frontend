@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, CheckCircle, Crown, ArrowRight } from 'lucide-react'
+import Logo from '../../components/Logo.jsx'
 
 const perks = [
   'Access to all live car auctions',
@@ -33,11 +34,7 @@ export default function AuctionSignupPage() {
         </div>
         <div className="relative z-10 flex flex-col justify-center h-full px-12">
           <Link to="/" className="flex items-center gap-3 mb-12">
-            <svg className="w-9 h-9" viewBox="0 0 40 40" fill="none">
-              <rect width="40" height="40" rx="10" fill="#2563eb"/>
-              <path d="M12 20L20 12L28 20L20 28L12 20Z" fill="white"/>
-              <circle cx="20" cy="20" r="3.5" fill="#2563eb"/>
-            </svg>
+            <Logo className="w-9 h-9" />
             <span className="text-white font-black text-lg">Executive <span className="animated-gradient-text">Cars</span></span>
           </Link>
 
