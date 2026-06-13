@@ -8,46 +8,8 @@ import { CARS } from '../data/cars.js'
 const brands = ['All', 'Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai']
 const fuelTypes = ['Petrol', 'Diesel', 'CNG', 'Hybrid']
 
-export default function UsedCarsPage() {
-  const [selectedBrands, setSelectedBrands] = useState(['All'])
-  const [priceRange, setPriceRange] = useState([0, 10000000])
-  const [mileageMax, setMileageMax] = useState(100000)
-  const [transmission, setTransmission] = useState('All')
-  const [selectedFuels, setSelectedFuels] = useState([])
-  const [search, setSearch] = useState('')
-  const [sort, setSort] = useState('newest')
-  const [saved, setSaved] = useState([])
-  const [page, setPage] = useState(1)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const PER_PAGE = 6
-
-  const toggleBrand = (b) => {
-    if (b === 'All') { setSelectedBrands(['All']); return }
-    const next = selectedBrands.filter(x => x !== 'All')
-    setSelectedBrands(next.includes(b) ? (next.filter(x => x !== b).length ? next.filter(x => x !== b) : ['All']) : [...next, b])
-  }
-  const toggleFuel = (f) => setSelectedFuels(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
-  const toggleSave = (id) => setSaved(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-
-  const filtered = CARS.filter(c => {
-    if (!selectedBrands.includes('All') && !selectedBrands.includes(c.make)) return false
-    if (c.price > priceRange[1]) return false
-    if (c.km > mileageMax) return false
-    if (transmission !== 'All' && c.transmission !== transmission) return false
-    if (selectedFuels.length > 0 && !selectedFuels.includes(c.fuel)) return false
-    if (search && !`${c.make} ${c.model}`.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  }).sort((a, b) => {
-    if (sort === 'price-asc') return a.price - b.price
-    if (sort === 'price-desc') return b.price - a.price
-    if (sort === 'km-asc') return a.km - b.km
-    return b.year - a.year
-  })
-
-  const totalPages = Math.ceil(filtered.length / PER_PAGE)
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
-
-  const FilterPanel = () => (
+function FilterPanel({ selectedBrands, toggleBrand, priceRange, setPriceRange, mileageMax, setMileageMax, transmission, setTransmission, selectedFuels, toggleFuel }) {
+  return (
     <div className="space-y-6">
       <div>
         <h4 className="text-gray-900 font-semibold text-sm mb-3">Brand</h4>
@@ -94,6 +56,46 @@ export default function UsedCarsPage() {
       <button className="btn-primary w-full py-3 rounded-xl font-semibold text-sm">Apply Filters</button>
     </div>
   )
+}
+
+export default function UsedCarsPage() {
+  const [selectedBrands, setSelectedBrands] = useState(['All'])
+  const [priceRange, setPriceRange] = useState([0, 10000000])
+  const [mileageMax, setMileageMax] = useState(100000)
+  const [transmission, setTransmission] = useState('All')
+  const [selectedFuels, setSelectedFuels] = useState([])
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState('newest')
+  const [saved, setSaved] = useState([])
+  const [page, setPage] = useState(1)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const PER_PAGE = 6
+
+  const toggleBrand = (b) => {
+    if (b === 'All') { setSelectedBrands(['All']); return }
+    const next = selectedBrands.filter(x => x !== 'All')
+    setSelectedBrands(next.includes(b) ? (next.filter(x => x !== b).length ? next.filter(x => x !== b) : ['All']) : [...next, b])
+  }
+  const toggleFuel = (f) => setSelectedFuels(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
+  const toggleSave = (id) => setSaved(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+
+  const filtered = CARS.filter(c => {
+    if (!selectedBrands.includes('All') && !selectedBrands.includes(c.make)) return false
+    if (c.price > priceRange[1]) return false
+    if (c.km > mileageMax) return false
+    if (transmission !== 'All' && c.transmission !== transmission) return false
+    if (selectedFuels.length > 0 && !selectedFuels.includes(c.fuel)) return false
+    if (search && !`${c.make} ${c.model}`.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  }).sort((a, b) => {
+    if (sort === 'price-asc') return a.price - b.price
+    if (sort === 'price-desc') return b.price - a.price
+    if (sort === 'km-asc') return a.km - b.km
+    return b.year - a.year
+  })
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,7 +136,13 @@ export default function UsedCarsPage() {
             {/* Sidebar */}
             <aside className="hidden lg:block w-60 shrink-0">
               <div className="bg-white border border-gray-200 rounded-2xl p-5 sticky top-20 shadow-sm">
-                <FilterPanel />
+                <FilterPanel
+                  selectedBrands={selectedBrands} toggleBrand={toggleBrand}
+                  priceRange={priceRange} setPriceRange={setPriceRange}
+                  mileageMax={mileageMax} setMileageMax={setMileageMax}
+                  transmission={transmission} setTransmission={setTransmission}
+                  selectedFuels={selectedFuels} toggleFuel={toggleFuel}
+                />
               </div>
             </aside>
 
@@ -150,7 +158,7 @@ export default function UsedCarsPage() {
                   {paginated.map(car => (
                     <div key={car.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
                       <div className="relative aspect-[16/10] overflow-hidden">
-                        <img src={car.img} alt={`${car.make} ${car.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute top-3 left-3 flex gap-2">
                           {car.inspected && (
                             <span className="badge-green text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
@@ -218,7 +226,13 @@ export default function UsedCarsPage() {
               <h3 className="text-gray-900 font-bold">Filters</h3>
               <button onClick={() => setSidebarOpen(false)}><X className="w-5 h-5 text-gray-500" /></button>
             </div>
-            <FilterPanel />
+            <FilterPanel
+              selectedBrands={selectedBrands} toggleBrand={toggleBrand}
+              priceRange={priceRange} setPriceRange={setPriceRange}
+              mileageMax={mileageMax} setMileageMax={setMileageMax}
+              transmission={transmission} setTransmission={setTransmission}
+              selectedFuels={selectedFuels} toggleFuel={toggleFuel}
+            />
           </div>
         </div>
       )}

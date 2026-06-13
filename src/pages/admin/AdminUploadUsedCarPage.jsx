@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Upload, X, FileText, CheckCircle, Car, ChevronDown } from 'lucide-react'
 import AdminLayout from '../../components/AdminLayout.jsx'
 import { BRANDS, MODELS } from '../../data/carBrands.js'
 const colors = ['White', 'Black', 'Silver', 'Grey', 'Red', 'Blue', 'Brown', 'Green', 'Orange']
 
 export default function AdminUploadUsedCarPage() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     make: '', model: '', year: '', mileage: '', engine: '',
     transmission: 'Auto', fuel: 'Petrol', color: '',
@@ -244,7 +246,7 @@ export default function AdminUploadUsedCarPage() {
             </div>
 
             <div className="flex gap-3">
-              <button type="button" onClick={() => window.history.back()} className="btn-ghost flex-1 py-3.5 rounded-xl font-bold text-sm">
+              <button type="button" onClick={() => navigate(-1)} className="btn-ghost flex-1 py-3.5 rounded-xl font-bold text-sm">
                 Cancel
               </button>
               <button type="submit" disabled={saving || saved}

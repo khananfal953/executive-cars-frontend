@@ -62,7 +62,7 @@ export default function AuctionLiveAuctionsPage() {
           <Link key={car.id} to={`/auction/car/${car.id}`}
             className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
             <div className="relative aspect-[16/9] overflow-hidden">
-              <img src={car.img} alt={`${car.make} ${car.model}`}
+              <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute top-3 left-3 flex gap-2">
