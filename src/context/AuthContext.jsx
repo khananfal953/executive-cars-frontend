@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import { USERS } from '../data/users.js'
+import { validateUser } from '../data/users.js'
 
 const AuthContext = createContext(null)
 const STORAGE_KEY = 'ec_user'
@@ -15,20 +15,20 @@ export function AuthProvider({ children }) {
   })
 
   const login = (email, password) => {
-    const found = USERS[email]
-    if (found && found.password === password) {
-      const userData = { email, role: found.role, name: found.name }
+    const result = validateUser(email, password)
+    if (result) {
+      const userData = { email, role: result.role, name: result.name }
       setUser(userData)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
-      return { success: true, role: found.role }
+      return { success: true, role: result.role }
     }
     return { success: false }
   }
 
   const loginAuction = (email, password) => {
-    const found = USERS[email]
-    if (found && found.password === password && (found.role === 'buyer' || found.role === 'admin')) {
-      const userData = { email, role: found.role, name: found.name }
+    const result = validateUser(email, password)
+    if (result && (result.role === 'buyer' || result.role === 'admin')) {
+      const userData = { email, role: result.role, name: result.name }
       setUser(userData)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
       return { success: true }
