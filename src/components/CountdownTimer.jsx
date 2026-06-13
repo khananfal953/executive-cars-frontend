@@ -10,6 +10,7 @@ export default function CountdownTimer({ endsIn, showDays = false, className = '
     : time.h === 0 && time.m < 60
 
   useEffect(() => {
+    setTime(endsIn)
     const t = setInterval(() => {
       setTime(prev => {
         let { d = 0, h, m, s } = prev
@@ -25,7 +26,7 @@ export default function CountdownTimer({ endsIn, showDays = false, className = '
       })
     }, 1000)
     return () => clearInterval(t)
-  }, [showDays])
+  }, [endsIn, showDays])
 
   const pad = n => String(n).padStart(2, '0')
 
