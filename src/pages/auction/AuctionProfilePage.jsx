@@ -5,7 +5,7 @@ import AuctionLayout from '../../components/AuctionLayout.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 
 export default function AuctionProfilePage() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const navigate = useNavigate()
 
   const [editing, setEditing] = useState(false)
@@ -23,8 +23,9 @@ export default function AuctionProfilePage() {
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const handleSave = () => {
-    setSaved(true)
+    updateUser({ name: form.name, phone: form.phone })
     setEditing(false)
+    setSaved(true)
     setTimeout(() => setSaved(false), 3000)
   }
 
