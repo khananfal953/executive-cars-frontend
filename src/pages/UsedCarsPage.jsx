@@ -67,7 +67,14 @@ export default function UsedCarsPage() {
   const [selectedFuels, setSelectedFuels] = useState([])
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('newest')
-  const [saved, setSaved] = useState([])
+  const [saved, setSaved] = useState(() => {
+    try {
+      const stored = localStorage.getItem('ec_wishlist')
+      return stored ? JSON.parse(stored) : []
+    } catch {
+      return []
+    }
+  })
   const [page, setPage] = useState(1)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const PER_PAGE = 6
@@ -78,7 +85,13 @@ export default function UsedCarsPage() {
     setSelectedBrands(next.includes(b) ? (next.filter(x => x !== b).length ? next.filter(x => x !== b) : ['All']) : [...next, b])
   }
   const toggleFuel = (f) => setSelectedFuels(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
-  const toggleSave = (id) => setSaved(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  const toggleSave = (id) => {
+    setSaved(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+      localStorage.setItem('ec_wishlist', JSON.stringify(next))
+      return next
+    })
+  }
 
   const filtered = CARS.filter(c => {
     if (!selectedBrands.includes('All') && !selectedBrands.includes(c.make)) return false
