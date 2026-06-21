@@ -36,6 +36,10 @@ import AdminUploadUsedCarPage from './pages/admin/AdminUploadUsedCarPage.jsx'
 // Seller Pages
 import SellerLoginPage from './pages/seller/SellerLoginPage.jsx'
 import SellerDashboardPage from './pages/seller/SellerDashboardPage.jsx'
+import SellerBookingsPage from './pages/seller/SellerBookingsPage.jsx'
+import SellerListingsPage from './pages/seller/SellerListingsPage.jsx'
+import SellerAuctionStatusPage from './pages/seller/SellerAuctionStatusPage.jsx'
+import SellerProfilePage from './pages/seller/SellerProfilePage.jsx'
 
 import UsedCarDetailPage from './pages/UsedCarDetailPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
@@ -92,7 +96,11 @@ export default function App() {
 
           {/* Seller */}
           <Route path="/seller/login" element={<SellerLoginPage />} />
-          <Route path="/seller/dashboard" element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
+          <Route path="/seller/dashboard"     element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
+          <Route path="/seller/bookings"      element={<ProtectedRoute role="seller"><SellerBookingsPage /></ProtectedRoute>} />
+          <Route path="/seller/listings"      element={<ProtectedRoute role="seller"><SellerListingsPage /></ProtectedRoute>} />
+          <Route path="/seller/auction-status" element={<ProtectedRoute role="seller"><SellerAuctionStatusPage /></ProtectedRoute>} />
+          <Route path="/seller/profile"       element={<ProtectedRoute role="seller"><SellerProfilePage /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

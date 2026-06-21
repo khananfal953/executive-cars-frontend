@@ -1,0 +1,96 @@
+import React, { useState } from 'react'
+import { User, Mail, Phone, MapPin, Edit2, Save, X } from 'lucide-react'
+import SellerLayout from '../../components/SellerLayout.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
+
+export default function SellerProfilePage() {
+  const { user, updateUser } = useAuth()
+  const [editing, setEditing] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [form, setForm] = useState({
+    name:    user?.name    || '',
+    phone:   user?.phone   || '+92 300 0000000',
+    cnic:    user?.cnic    || '00000-0000000-0',
+    address: user?.address || 'Islamabad, Pakistan',
+  })
+  const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleSave = () => {
+    updateUser({ name: form.name, phone: form.phone })
+    setEditing(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  return (
+    <SellerLayout title="My Profile">
+      {saved && (
+        <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-2xl flex items-center gap-3">
+          <Save className="w-5 h-5 shrink-0" />
+          <p className="font-semibold text-sm">Profile updated successfully!</p>
+        </div>
+      )}
+
+      <div className="max-w-2xl space-y-6">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-gray-900 font-bold text-lg">Profile Information</h2>
+            {!editing ? (
+              <button onClick={() => setEditing(true)} className="btn-ghost px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                <Edit2 className="w-4 h-4" /> Edit
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button onClick={handleSave} className="btn-primary px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                  <Save className="w-4 h-4" /> Save
+                </button>
+                <button onClick={() => setEditing(false)} className="btn-ghost px-4 py-2 rounded-xl text-sm">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-black text-xl shrink-0">
+              {(form.name || 'S').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-gray-900 font-bold text-lg">{form.name}</p>
+              <p className="text-blue-600 text-sm font-medium">Verified Seller</p>
+              <p className="text-gray-400 text-xs">{user?.email}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              { key: 'name',    label: 'Full Name',    icon: User,   type: 'text' },
+              { key: 'phone',   label: 'Phone Number', icon: Phone,  type: 'tel'  },
+              { key: 'cnic',    label: 'CNIC',         icon: User,   type: 'text' },
+              { key: 'address', label: 'Address',      icon: MapPin, type: 'text' },
+            ].map(({ key, label, icon: Icon, type }) => (
+              <div key={key}>
+                <label className="block text-gray-700 text-sm font-medium mb-1">{label}</label>
+                <div className="relative">
+                  <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type={type} value={form[key]} disabled={!editing}
+                    onChange={e => update(key, e.target.value)}
+                    className="input-light pl-10 w-full disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed" />
+                </div>
+              </div>
+            ))}
+            <div>
+              <label className="block text-gray-700 text-sm font-medium mb-1">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="email" value={user?.email || ''} disabled
+                  className="input-light pl-10 w-full bg-gray-50 text-gray-500 cursor-not-allowed" />
+              </div>
+              <p className="text-gray-400 text-xs mt-1">Email cannot be changed here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SellerLayout>
+  )
+}
