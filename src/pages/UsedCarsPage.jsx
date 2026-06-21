@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Search, SlidersHorizontal, Heart, Eye, Fuel, Settings, Gauge, ChevronLeft, ChevronRight, CheckCircle, X } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
@@ -184,9 +185,9 @@ export default function UsedCarsPage() {
                         </div>
                         <div className="mt-3 flex items-center justify-between">
                           <span className="text-blue-600 font-black text-lg">PKR {formatPKR(car.price)}</span>
-                          <button className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
+                          <Link to={`/used-cars/${car.id}`} className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
                             <Eye className="w-3 h-3" /> View
-                          </button>
+                          </Link>
                         </div>
                       </div>
                     </div>

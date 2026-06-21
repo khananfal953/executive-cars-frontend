@@ -37,6 +37,7 @@ import AdminUploadUsedCarPage from './pages/admin/AdminUploadUsedCarPage.jsx'
 import SellerLoginPage from './pages/seller/SellerLoginPage.jsx'
 import SellerDashboardPage from './pages/seller/SellerDashboardPage.jsx'
 
+import UsedCarDetailPage from './pages/UsedCarDetailPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
 import ProtectedRoute from './components/ProtectedRoute.jsx'
@@ -62,6 +63,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/become-a-seller" element={<BecomeSellerPage />} />
           <Route path="/used-cars" element={<UsedCarsPage />} />
+          <Route path="/used-cars/:id" element={<UsedCarDetailPage />} />
           <Route path="/price-predictor" element={<PricePredictorPage />} />
           <Route path="/ai-assistant" element={<AIAssistantPage />} />
 
