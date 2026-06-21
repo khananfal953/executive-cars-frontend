@@ -53,6 +53,8 @@ export default function LoginHintBanner() {
   const [open, setOpen] = useState(true)
   const [expanded, setExpanded] = useState(true)
 
+  if (!import.meta.env.DEV) return null
+
   if (!open) return (
     <button
       onClick={() => setOpen(true)}

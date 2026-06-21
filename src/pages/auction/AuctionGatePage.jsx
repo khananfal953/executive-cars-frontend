@@ -77,31 +77,33 @@ export default function AuctionGatePage() {
           </div>
 
           {/* Test Accounts */}
-          <div className="bg-white border border-blue-200 rounded-2xl p-6 shadow-sm mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Users className="w-5 h-5 text-blue-600" />
-              <h3 className="text-gray-900 font-bold">Test Accounts — Click Any to Login</h3>
-              <span className="badge-blue text-xs px-2 py-0.5 rounded-full font-semibold ml-auto">Demo</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {TEST_ACCOUNTS.map(acc => (
-                <Link key={acc.email} to="/auction/login"
-                  className="flex flex-col bg-blue-50 border border-blue-200 rounded-xl p-4 hover:bg-blue-100 hover:border-blue-400 transition-all group">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      {acc.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+          {import.meta.env.DEV && (
+            <div className="bg-white border border-blue-200 rounded-2xl p-6 shadow-sm mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Users className="w-5 h-5 text-blue-600" />
+                <h3 className="text-gray-900 font-bold">Test Accounts — Click Any to Login</h3>
+                <span className="badge-blue text-xs px-2 py-0.5 rounded-full font-semibold ml-auto">Demo</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {TEST_ACCOUNTS.map(acc => (
+                  <Link key={acc.email} to="/auction/login"
+                    className="flex flex-col bg-blue-50 border border-blue-200 rounded-xl p-4 hover:bg-blue-100 hover:border-blue-400 transition-all group">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+                        {acc.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </div>
+                      <span className="text-gray-900 font-semibold text-sm">{acc.name}</span>
                     </div>
-                    <span className="text-gray-900 font-semibold text-sm">{acc.name}</span>
-                  </div>
-                  <p className="text-gray-500 text-xs font-mono">{acc.email}</p>
-                  <p className="text-gray-400 text-xs font-mono">Pass: {acc.password}</p>
-                  <span className="text-blue-600 text-xs font-semibold mt-2 group-hover:underline">
-                    Click to use →
-                  </span>
-                </Link>
-              ))}
+                    <p className="text-gray-500 text-xs font-mono">{acc.email}</p>
+                    <p className="text-gray-400 text-xs font-mono">Pass: {acc.password}</p>
+                    <span className="text-blue-600 text-xs font-semibold mt-2 group-hover:underline">
+                      Click to use →
+                    </span>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Trust badges */}
           <div className="flex items-center justify-center gap-8 flex-wrap">

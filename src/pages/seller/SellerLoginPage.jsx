@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 export default function SellerLoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [form, setForm] = useState({ email: 'seller@executivecars.pk', password: 'seller123' })
+  const [form, setForm] = useState({ email: import.meta.env.DEV ? 'seller@executivecars.pk' : '', password: import.meta.env.DEV ? 'seller123' : '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -64,16 +64,18 @@ export default function SellerLoginPage() {
             ))}
           </div>
 
-          <div className="mt-10 bg-white/5 border border-white/10 rounded-xl p-4">
-            <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wider">Test Credentials</p>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-200 text-sm font-mono">seller@executivecars.pk</p>
-                <p className="text-slate-200 text-sm font-mono">seller123</p>
+          {import.meta.env.DEV && (
+            <div className="mt-10 bg-white/5 border border-white/10 rounded-xl p-4">
+              <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wider">Test Credentials</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-200 text-sm font-mono">seller@executivecars.pk</p>
+                  <p className="text-slate-200 text-sm font-mono">seller123</p>
+                </div>
+                <span className="bg-green-500/20 border border-green-500/30 text-green-400 text-xs px-2 py-1 rounded-full font-semibold">Seller</span>
               </div>
-              <span className="bg-green-500/20 border border-green-500/30 text-green-400 text-xs px-2 py-1 rounded-full font-semibold">Seller</span>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -88,13 +90,15 @@ export default function SellerLoginPage() {
             <p className="text-gray-500 text-sm mt-1">Access your seller dashboard</p>
           </div>
 
-          <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-6 flex items-center justify-between">
-            <div>
-              <p className="text-green-700 text-xs font-semibold">Pre-filled test credentials</p>
-              <p className="text-green-600 text-xs mt-0.5">seller@executivecars.pk / seller123</p>
+          {import.meta.env.DEV && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-green-700 text-xs font-semibold">Pre-filled test credentials</p>
+                <p className="text-green-600 text-xs mt-0.5">seller@executivecars.pk / seller123</p>
+              </div>
+              <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
             </div>
-            <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
-          </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

@@ -13,7 +13,7 @@ const TEST_ACCOUNTS = [
 export default function AuctionLoginPage() {
   const navigate = useNavigate()
   const { loginAuction } = useAuth()
-  const [form, setForm] = useState({ email: 'buyer@executivecars.pk', password: 'buyer123', remember: false })
+  const [form, setForm] = useState({ email: import.meta.env.DEV ? 'buyer@executivecars.pk' : '', password: import.meta.env.DEV ? 'buyer123' : '', remember: false })
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -63,21 +63,23 @@ export default function AuctionLoginPage() {
           </div>
 
           {/* Test accounts */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-            <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Test Accounts — Click to Fill</p>
-            <div className="space-y-2">
-              {TEST_ACCOUNTS.map(acc => (
-                <button key={acc.email} onClick={() => fillAccount(acc)}
-                  className="w-full flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 transition-all group">
-                  <div className="text-left">
-                    <p className="text-slate-200 text-sm font-medium">{acc.name}</p>
-                    <p className="text-slate-400 text-xs font-mono">{acc.email}</p>
-                  </div>
-                  <span className="badge-blue text-xs px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Use</span>
-                </button>
-              ))}
+          {import.meta.env.DEV && (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Test Accounts — Click to Fill</p>
+              <div className="space-y-2">
+                {TEST_ACCOUNTS.map(acc => (
+                  <button key={acc.email} onClick={() => fillAccount(acc)}
+                    className="w-full flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 transition-all group">
+                    <div className="text-left">
+                      <p className="text-slate-200 text-sm font-medium">{acc.name}</p>
+                      <p className="text-slate-400 text-xs font-mono">{acc.email}</p>
+                    </div>
+                    <span className="badge-blue text-xs px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Use</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -93,13 +95,15 @@ export default function AuctionLoginPage() {
           </div>
 
           {/* Quick fill hint */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-5 flex items-center justify-between">
-            <div>
-              <p className="text-blue-700 text-xs font-semibold">Pre-filled test account</p>
-              <p className="text-blue-600 text-xs mt-0.5 font-mono">buyer@executivecars.pk / buyer123</p>
+          {import.meta.env.DEV && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-5 flex items-center justify-between">
+              <div>
+                <p className="text-blue-700 text-xs font-semibold">Pre-filled test account</p>
+                <p className="text-blue-600 text-xs mt-0.5 font-mono">buyer@executivecars.pk / buyer123</p>
+              </div>
+              <CheckCircle className="w-5 h-5 text-blue-500 shrink-0" />
             </div>
-            <CheckCircle className="w-5 h-5 text-blue-500 shrink-0" />
-          </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
