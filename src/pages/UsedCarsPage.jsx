@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, SlidersHorizontal, Heart, Eye, Fuel, Settings, Gauge, ChevronLeft, ChevronRight, CheckCircle, X } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
@@ -93,7 +93,7 @@ export default function UsedCarsPage() {
     })
   }
 
-  const filtered = CARS.filter(c => {
+  const filtered = useMemo(() => CARS.filter(c => {
     if (!selectedBrands.includes('All') && !selectedBrands.includes(c.make)) return false
     if (c.price > priceRange[1]) return false
     if (c.km > mileageMax) return false
@@ -106,7 +106,7 @@ export default function UsedCarsPage() {
     if (sort === 'price-desc') return b.price - a.price
     if (sort === 'km-asc') return a.km - b.km
     return b.year - a.year
-  })
+  }), [selectedBrands, priceRange, mileageMax, transmission, selectedFuels, search, sort])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)

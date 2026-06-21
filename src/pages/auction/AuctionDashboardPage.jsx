@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, TrendingUp, Trophy, Clock, Flame, ArrowUpRight } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
@@ -7,6 +7,47 @@ import { formatPKR } from '../../utils/format.js'
 import { ALL_AUCTIONS } from '../../data/auctions.js'
 
 const AUCTIONS = ALL_AUCTIONS.slice(0, 6)
+
+const AuctionCard = React.memo(function AuctionCard({ car }) {
+  return (
+    <Link to={`/auction/car/${car.id}`}
+      className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
+      <div className="relative aspect-[16/9] overflow-hidden">
+        <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute top-3 left-3 flex gap-2">
+          {car.hot && (
+            <span className="bg-red-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
+              <Flame className="w-3 h-3" /> Hot
+            </span>
+          )}
+          <span className="bg-green-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Live
+          </span>
+        </div>
+        <div className="absolute bottom-3 right-3">
+          <CountdownTimer endsIn={car.endsIn} />
+        </div>
+      </div>
+      <div className="p-4">
+        <h3 className="text-gray-900 font-bold">{car.make} {car.model} {car.year}</h3>
+        <div className="flex items-center justify-between mt-3">
+          <div>
+            <p className="text-gray-400 text-xs">Current Bid</p>
+            <p className="text-blue-600 font-black text-lg">PKR {formatPKR(car.currentBid)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-gray-400 text-xs">{car.bidders} bidders</p>
+            <button className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold mt-1 flex items-center gap-1">
+              <Gavel className="w-3 h-3" /> Bid Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+})
 
 const stats = [
   { icon: Gavel,     label: 'Active Auctions', value: 6,   bg: 'bg-blue-50',   color: 'text-blue-600',   border: 'border-blue-200'   },
@@ -17,11 +58,11 @@ const stats = [
 
 export default function AuctionDashboardPage() {
   const [filter, setFilter] = useState('All')
-  const filtered = filter === 'Hot'
+  const filtered = useMemo(() => filter === 'Hot'
     ? AUCTIONS.filter(a => a.hot)
     : filter === 'Ending Soon'
     ? AUCTIONS.filter(a => a.endsIn.h < 2)
-    : AUCTIONS
+    : AUCTIONS, [filter])
 
   return (
     <AuctionLayout title="Dashboard">
@@ -64,42 +105,7 @@ export default function AuctionDashboardPage() {
       {/* Auction cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
         {filtered.map(car => (
-          <Link key={car.id} to={`/auction/car/${car.id}`}
-            className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
-            <div className="relative aspect-[16/9] overflow-hidden">
-              <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute top-3 left-3 flex gap-2">
-                {car.hot && (
-                  <span className="bg-red-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
-                    <Flame className="w-3 h-3" /> Hot
-                  </span>
-                )}
-                <span className="bg-green-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Live
-                </span>
-              </div>
-              <div className="absolute bottom-3 right-3">
-                <CountdownTimer endsIn={car.endsIn} />
-              </div>
-            </div>
-            <div className="p-4">
-              <h3 className="text-gray-900 font-bold">{car.make} {car.model} {car.year}</h3>
-              <div className="flex items-center justify-between mt-3">
-                <div>
-                  <p className="text-gray-400 text-xs">Current Bid</p>
-                  <p className="text-blue-600 font-black text-lg">PKR {formatPKR(car.currentBid)}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-gray-400 text-xs">{car.bidders} bidders</p>
-                  <button className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold mt-1 flex items-center gap-1">
-                    <Gavel className="w-3 h-3" /> Bid Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Link>
+          <AuctionCard key={car.id} car={car} />
         ))}
       </div>
     </AuctionLayout>
