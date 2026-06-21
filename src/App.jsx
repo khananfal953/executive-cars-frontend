@@ -37,6 +37,8 @@ import AdminUploadUsedCarPage from './pages/admin/AdminUploadUsedCarPage.jsx'
 import SellerLoginPage from './pages/seller/SellerLoginPage.jsx'
 import SellerDashboardPage from './pages/seller/SellerDashboardPage.jsx'
 
+import NotFoundPage from './pages/NotFoundPage.jsx'
+
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function BannerWrapper() {
@@ -44,7 +46,7 @@ function BannerWrapper() {
   const hidePaths = [
     '/auction/dashboard', '/auction/live', '/auction/my-bids',
     '/auction/won-cars', '/auction/profile', '/auction/car',
-    '/admin/', '/seller/dashboard',
+    '/admin/', '/seller/',
   ]
   const hide = hidePaths.some(p => location.pathname.startsWith(p))
   return hide ? null : <LoginHintBanner />
@@ -89,6 +91,8 @@ export default function App() {
           {/* Seller */}
           <Route path="/seller/login" element={<SellerLoginPage />} />
           <Route path="/seller/dashboard" element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
