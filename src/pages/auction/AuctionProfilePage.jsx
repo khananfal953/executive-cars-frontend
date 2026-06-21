@@ -131,9 +131,14 @@ export default function AuctionProfilePage() {
               <p className="text-blue-200 text-xs">Days Remaining</p>
               <p className="text-white font-black text-3xl">287</p>
             </div>
-            <button className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
-              Renew Membership
-            </button>
+            <div className="relative group">
+              <button disabled className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-semibold opacity-50 cursor-not-allowed">
+                Renew Membership
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Available after backend integration
+              </div>
+            </div>
           </div>
         </div>
 
@@ -166,9 +171,14 @@ export default function AuctionProfilePage() {
                     className="input-light" placeholder="••••••••" />
                 </div>
               ))}
-              <button className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm">
-                Update Password
-              </button>
+              <div className="relative group inline-block">
+                <button disabled className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm opacity-50 cursor-not-allowed">
+                  Update Password
+                </button>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  Available after backend integration
+                </div>
+              </div>
             </div>
           )}
         </div>

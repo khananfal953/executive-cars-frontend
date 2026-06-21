@@ -129,11 +129,21 @@ export default function AuctionLoginPage() {
             )}
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={form.remember} onChange={e => update('remember', e.target.checked)} className="accent-blue-600" />
-                <span className="text-gray-500 text-sm">Remember me</span>
-              </label>
-              <button type="button" className="text-blue-600 text-sm hover:underline">Forgot Password?</button>
+              <div className="relative group flex items-center gap-2">
+                <input type="checkbox" disabled className="accent-blue-600 opacity-50 cursor-not-allowed" />
+                <span className="text-gray-500 text-sm opacity-50 cursor-not-allowed">Remember me</span>
+                <div className="absolute bottom-full left-0 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  Available after backend integration
+                </div>
+              </div>
+              <div className="relative group inline-block">
+                <button type="button" disabled className="text-blue-600 text-sm font-medium opacity-50 cursor-not-allowed">
+                  Forgot Password?
+                </button>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  Available after backend integration
+                </div>
+              </div>
             </div>
 
             <button type="submit" disabled={loading}

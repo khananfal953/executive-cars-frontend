@@ -179,9 +179,14 @@ export default function AuctionCarDetailPage() {
                   <h3 className="text-gray-900 font-bold">Inspection Report</h3>
                   <span className="badge-green text-xs px-2 py-0.5 rounded-full font-medium">Verified</span>
                 </div>
-                <button className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1">
-                  <Download className="w-3 h-3" /> Download PDF
-                </button>
+                <div className="relative group">
+                  <button disabled className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 opacity-50 cursor-not-allowed">
+                    <Download className="w-3 h-3" /> Download PDF
+                  </button>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Available after backend integration
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[

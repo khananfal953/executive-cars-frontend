@@ -92,9 +92,14 @@ export default function AuctionWonCarsPage() {
 
                   {/* Actions */}
                   <div className="flex flex-wrap gap-3">
-                    <button className="btn-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
-                      <Download className="w-4 h-4" /> Download Invoice
-                    </button>
+                    <div className="relative group">
+                      <button disabled className="btn-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 opacity-50 cursor-not-allowed">
+                        <Download className="w-4 h-4" /> Download Invoice
+                      </button>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Available after backend integration
+                      </div>
+                    </div>
                     <a href={`tel:${car.contact}`}
                       className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-green-100 transition-colors">
                       <Phone className="w-4 h-4" /> Contact Seller
