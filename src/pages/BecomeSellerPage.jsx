@@ -17,7 +17,24 @@ export default function BecomeSellerPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [otpTimer, setOtpTimer] = useState(60)
   const [form, setForm] = useState({ name: '', phone: '', cnic: '', email: '', make: '', model: '', year: '', mileage: '', engine: '', cnicFile: null, regFile: null, date: '', branch: '' })
+  const [fieldErrors, setFieldErrors] = useState({})
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const validateStep = (stepNum) => {
+    const e = {}
+    if (stepNum === 1) {
+      if (!form.name?.trim()) e.name = 'Full name is required.'
+      if (!form.phone?.trim()) e.phone = 'Phone number is required.'
+      const cnicRegex = /^\d{5}-\d{7}-\d{1}$/
+      if (form.cnic && !cnicRegex.test(form.cnic)) e.cnic = 'CNIC format must be XXXXX-XXXXXXX-X.'
+    }
+    if (stepNum === 3) {
+      if (!form.date) e.date = 'Inspection date is required.'
+      else if (new Date(form.date) < new Date()) e.date = 'Inspection date cannot be in the past.'
+      if (!form.branch) e.branch = 'Please select a branch.'
+    }
+    return e
+  }
 
   const handleOtpChange = (i, val) => {
     if (!/^\d?$/.test(val)) return
@@ -27,6 +44,9 @@ export default function BecomeSellerPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    const errs = validateStep(step)
+    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return }
+    setFieldErrors({})
     if (step < 3) { setStep(s => s + 1); return }
     setShowOTP(true)
     let t = 60
@@ -137,7 +157,8 @@ export default function BecomeSellerPage() {
                     ].map(f => (
                       <div key={f.key}>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
-                        <input type={f.type} value={form[f.key]} onChange={e => update(f.key, e.target.value)} placeholder={f.placeholder} required className="input-light" />
+                        <input type={f.type} value={form[f.key]} onChange={e => update(f.key, e.target.value)} placeholder={f.placeholder} required className={`input-light ${fieldErrors[f.key] ? 'border-red-400' : ''}`} />
+                        {fieldErrors[f.key] && <p className="text-red-600 text-xs mt-1">{fieldErrors[f.key]}</p>}
                       </div>
                     ))}
                   </>
@@ -187,14 +208,16 @@ export default function BecomeSellerPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">Preferred Inspection Date</label>
-                      <input type="date" value={form.date} onChange={e => update('date', e.target.value)} required className="input-light" />
+                      <input type="date" value={form.date} onChange={e => update('date', e.target.value)} required className={`input-light ${fieldErrors.date ? 'border-red-400' : ''}`} />
+                      {fieldErrors.date && <p className="text-red-600 text-xs mt-1">{fieldErrors.date}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">Select Branch</label>
-                      <select value={form.branch} onChange={e => update('branch', e.target.value)} required className="input-light">
+                      <select value={form.branch} onChange={e => update('branch', e.target.value)} required className={`input-light ${fieldErrors.branch ? 'border-red-400' : ''}`}>
                         <option value="">Choose a branch...</option>
                         {branches.map(b => <option key={b} value={b}>{b}</option>)}
                       </select>
+                      {fieldErrors.branch && <p className="text-red-600 text-xs mt-1">{fieldErrors.branch}</p>}
                     </div>
                   </>
                 )}

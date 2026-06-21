@@ -17,8 +17,26 @@ export default function AdminUploadAuctionPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const [errors, setErrors] = useState({})
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const validate = () => {
+    const e = {}
+    if (!form.make) e.make = 'Brand is required.'
+    if (!form.model) e.model = 'Model is required.'
+    const yr = Number(form.year)
+    if (!form.year || yr < 1990 || yr > new Date().getFullYear() + 1) e.year = 'Enter a valid year (1990–present).'
+    const mi = Number(form.mileage)
+    if (!form.mileage || mi < 0) e.mileage = 'Mileage must be a positive number.'
+    const eng = Number(form.engine)
+    if (!form.engine || eng < 600 || eng > 8000) e.engine = 'Engine CC must be between 600 and 8000.'
+    const bp = Number(form.basePrice)
+    if (!form.basePrice || bp <= 0) e.basePrice = 'Base price must be a positive number.'
+    if (!form.startDate) e.startDate = 'Start date is required.'
+    if (!form.endDate) e.endDate = 'End date is required.'
+    return e
+  }
 
   const handleImages = (e) => {
     const files = Array.from(e.target.files)
@@ -29,6 +47,9 @@ export default function AdminUploadAuctionPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const errs = validate()
+    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    setErrors({})
     setSaving(true)
     await new Promise(r => setTimeout(r, 1500))
     setSaving(false)
@@ -121,6 +142,7 @@ export default function AdminUploadAuctionPage() {
                     required
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
                   />
+                  {errors.mileage && <p className="text-red-600 text-xs mt-1">{errors.mileage}</p>}
                 </div>
                 {/* Engine */}
                 <div>
@@ -133,6 +155,7 @@ export default function AdminUploadAuctionPage() {
                     required
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
                   />
+                  {errors.engine && <p className="text-red-600 text-xs mt-1">{errors.engine}</p>}
                 </div>
                 {/* Color */}
                 <div>
@@ -193,6 +216,7 @@ export default function AdminUploadAuctionPage() {
                     required
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
                   />
+                  {errors.basePrice && <p className="text-red-600 text-xs mt-1">{errors.basePrice}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -204,6 +228,7 @@ export default function AdminUploadAuctionPage() {
                       required
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-blue-500 text-sm"
                     />
+                    {errors.startDate && <p className="text-red-600 text-xs mt-1">{errors.startDate}</p>}
                   </div>
                   <div>
                     <label className="block text-sm text-gray-600 font-medium mb-1.5">End Date & Time</label>
@@ -214,6 +239,7 @@ export default function AdminUploadAuctionPage() {
                       required
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-blue-500 text-sm"
                     />
+                    {errors.endDate && <p className="text-red-600 text-xs mt-1">{errors.endDate}</p>}
                   </div>
                 </div>
                 <div>

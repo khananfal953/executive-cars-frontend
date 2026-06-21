@@ -17,10 +17,24 @@ export default function AuctionSignupPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', terms: false })
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [errors, setErrors] = useState({})
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const validate = () => {
+    const e = {}
+    if (!form.name?.trim()) e.name = 'Full name is required.'
+    if (!form.email?.trim()) e.email = 'Email is required.'
+    if (!form.password || form.password.length < 8) e.password = 'Password must be at least 8 characters.'
+    if (form.password !== form.confirm) e.confirm = 'Passwords do not match.'
+    if (!form.phone?.trim()) e.phone = 'Phone number is required.'
+    return e
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    const errs = validate()
+    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    setErrors({})
     navigate('/auction/payment')
   }
 
@@ -84,7 +98,8 @@ export default function AuctionSignupPage() {
               <div key={f.key}>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
                 <input type={f.type} value={form[f.key]} onChange={e => update(f.key, e.target.value)}
-                  placeholder={f.placeholder} required className="input-light" />
+                  placeholder={f.placeholder} required className={`input-light ${errors[f.key] ? 'border-red-400' : ''}`} />
+                {errors[f.key] && <p className="text-red-600 text-xs mt-1">{errors[f.key]}</p>}
               </div>
             ))}
 
@@ -92,22 +107,24 @@ export default function AuctionSignupPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
               <div className="relative">
                 <input type={showPass ? 'text' : 'password'} value={form.password} onChange={e => update('password', e.target.value)}
-                  placeholder="Min. 8 characters" required className="input-light pr-10" />
+                  placeholder="Min. 8 characters" required className={`input-light pr-10 ${errors.password ? 'border-red-400' : ''}`} />
                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
               <div className="relative">
                 <input type={showConfirm ? 'text' : 'password'} value={form.confirm} onChange={e => update('confirm', e.target.value)}
-                  placeholder="Repeat password" required className="input-light pr-10" />
+                  placeholder="Repeat password" required className={`input-light pr-10 ${errors.confirm ? 'border-red-400' : ''}`} />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {errors.confirm && <p className="text-red-600 text-xs mt-1">{errors.confirm}</p>}
             </div>
 
             <label className="flex items-start gap-3 cursor-pointer">
