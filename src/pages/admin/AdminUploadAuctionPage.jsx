@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Upload, X, FileText, CheckCircle, Gavel, ChevronDown } from 'lucide-react'
 import AdminLayout from '../../components/AdminLayout.jsx'
 import { BRANDS, MODELS } from '../../data/carBrands.js'
+import api from '../../api/api.js'
 const colors = ['White', 'Black', 'Silver', 'Grey', 'Red', 'Blue', 'Brown', 'Green', 'Orange']
 
 export default function AdminUploadAuctionPage() {
@@ -51,18 +52,33 @@ export default function AdminUploadAuctionPage() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setErrors({})
     setSaving(true)
-    await new Promise(r => setTimeout(r, 1500))
+    try {
+      const fd = new FormData()
+      fd.append('make', form.make)
+      fd.append('model', form.model)
+      fd.append('year', form.year)
+      fd.append('km', form.mileage)
+      fd.append('engine', form.engine)
+      fd.append('transmission', form.transmission)
+      fd.append('fuel', form.fuel)
+      fd.append('color', form.color)
+      fd.append('basePrice', form.basePrice)
+      fd.append('auctionStart', form.startDate)
+      fd.append('auctionEnd', form.endDate)
+      fd.append('description', form.notes)
+      images.forEach(img => fd.append('images', img))
+      if (report) fd.append('report', report)
+      await api.post('/admin/cars', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      setSaved(true)
+      setForm({ make: '', model: '', year: '', mileage: '', engine: '', transmission: 'Auto', fuel: 'Petrol', color: '', basePrice: '', startDate: '', endDate: '', notes: '' })
+      setImages([])
+      setReport(null)
+      setResetKey(k => k + 1)
+      setTimeout(() => setSaved(false), 4000)
+    } catch (err) {
+      setErrors({ submit: err.response?.data?.message || 'Failed to list car. Try again.' })
+    }
     setSaving(false)
-    setSaved(true)
-    setForm({
-      make: '', model: '', year: '', mileage: '', engine: '',
-      transmission: 'Auto', fuel: 'Petrol', color: '',
-      basePrice: '', startDate: '', endDate: '', notes: '',
-    })
-    setImages([])
-    setReport(null)
-    setResetKey(k => k + 1)
-    setTimeout(() => setSaved(false), 4000)
   }
 
   return (
@@ -300,6 +316,7 @@ export default function AdminUploadAuctionPage() {
             </div>
 
             {/* Submit */}
+            {errors.submit && <p className="text-red-600 text-sm text-center">{errors.submit}</p>}
             <div className="flex gap-3">
               <button
                 type="button"

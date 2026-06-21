@@ -33,7 +33,7 @@ function AnimatedCounter({ target, suffix = '' }) {
 }
 
 const services = [
-  { icon: ClipboardCheck, title: 'Become A Seller', desc: 'Schedule a free inspection at our Islamabad branch. Get your car listed with a verified report — no advertising cost.', to: '/become-a-seller', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
+  { icon: ClipboardCheck, title: 'Become A Seller', desc: 'Schedule a free inspection at our Rawalpindi showroom. Get your car listed with a verified report — no advertising cost.', to: '/become-a-seller', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
   { icon: TrendingUp, title: 'Car Price Predictor', desc: 'AI-powered price estimation trained on PakWheels 2025 data. Get an accurate market value in seconds.', to: '/price-predictor', iconBg: 'bg-green-100', iconColor: 'text-green-600' },
   { icon: Gavel, title: 'Auction Platform', desc: 'Members-only real-time bidding on inspected vehicles. Transparent, competitive, and fully digital.', to: '/auction', iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
   { icon: Car, title: 'Used Cars', desc: 'Browse verified used cars with full inspection reports. Every listing is quality-checked and fairly priced.', to: '/used-cars', iconBg: 'bg-orange-100', iconColor: 'text-orange-600' },
@@ -184,7 +184,7 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2">
-                  <p className="text-gray-700 text-xs font-medium">Executive Cars — Islamabad</p>
+                  <p className="text-gray-700 text-xs font-medium">Executive Cars — Rawalpindi</p>
                 </div>
               </div>
               {/* Stat badges */}
@@ -204,10 +204,10 @@ export default function HomePage() {
                 <span className="text-blue-600 text-xs font-semibold uppercase tracking-widest">Who We Are</span>
               </div>
               <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-5">
-                Islamabad's <span className="primary-text">Smartest</span><br />Car Showroom
+                Rawalpindi's <span className="primary-text">Smartest</span><br />Car Showroom
               </h2>
               <p className="text-gray-600 leading-relaxed mb-8">
-                Executive Cars is a real Islamabad-based showroom that has gone fully digital. We've built an AI-powered platform that combines professional vehicle inspections, data-driven price predictions, and a transparent auction system.
+                Executive Cars is a real Rawalpindi-based showroom that has gone fully digital. We've built an AI-powered platform that combines professional vehicle inspections, data-driven price predictions, and a transparent auction system.
               </p>
               <div className="space-y-5">
                 {trustPoints.map((tp) => (

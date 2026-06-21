@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 
 export default function SellerLoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { loginSeller } = useAuth()
   const [form, setForm] = useState({ email: import.meta.env.DEV ? 'seller@executivecars.pk' : '', password: import.meta.env.DEV ? 'seller123' : '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -15,9 +15,8 @@ export default function SellerLoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true); setError(false)
-    await new Promise(r => setTimeout(r, 800))
-    const result = login(form.email, form.password)
-    if (result.success && result.role === 'seller') {
+    const result = await loginSeller(form.email, form.password)
+    if (result.success) {
       navigate('/seller/dashboard')
     } else {
       setError(true)

@@ -3,6 +3,7 @@ import { Brain, TrendingUp, ChevronDown, Loader2, Info } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { formatPKR } from '../utils/format.js'
+import api from '../api/api.js'
 
 const brands = ['Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai', 'Mitsubishi', 'Nissan', 'BMW', 'Mercedes', 'Audi']
 const models = {
@@ -27,14 +28,22 @@ function mockPredict(form) {
 export default function PricePredictorPage() {
   const [form, setForm] = useState({ brand: '', model: '', year: 2020, mileage: 30000, engine: 1300, transmission: 'Auto', fuel: 'Petrol' })
   const [result, setResult] = useState(null)
+  const [confidence, setConfidence] = useState(87)
   const [loading, setLoading] = useState(false)
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const handlePredict = async (e) => {
     e.preventDefault()
     setLoading(true); setResult(null)
-    await new Promise(r => setTimeout(r, 1800))
-    setResult(mockPredict(form)); setLoading(false)
+    try {
+      const { data } = await api.post('/predict', { ...form, make: form.brand })
+      setResult(data.predicted)
+      setConfidence(data.confidence != null ? Math.round(data.confidence * 100) : 87)
+    } catch {
+      setResult(mockPredict(form))
+      setConfidence(87)
+    }
+    setLoading(false)
   }
 
   return (
@@ -142,9 +151,9 @@ export default function PricePredictorPage() {
                   <div className="text-5xl font-black text-blue-600 mb-1">PKR {formatPKR(result)}</div>
                   <p className="text-gray-500 text-sm mb-4">Range: PKR {formatPKR(result * 0.92)} – PKR {formatPKR(result * 1.08)}</p>
                   <div className="max-w-xs mx-auto">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1"><span>Confidence</span><span>87%</span></div>
+                    <div className="flex justify-between text-xs text-gray-500 mb-1"><span>Confidence</span><span>{confidence}%</span></div>
                     <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-600 rounded-full" style={{ width: '87%' }} />
+                      <div className="h-full bg-blue-600 rounded-full" style={{ width: `${confidence}%` }} />
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-1 mt-4 text-xs text-gray-400">

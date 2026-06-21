@@ -24,8 +24,7 @@ export default function AuctionLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true); setError(false)
-    await new Promise(r => setTimeout(r, 800))
-    const result = loginAuction(form.email, form.password)
+    const result = await loginAuction(form.email, form.password)
     if (result.success) navigate('/auction/dashboard')
     else { setError(true); setLoading(false) }
   }

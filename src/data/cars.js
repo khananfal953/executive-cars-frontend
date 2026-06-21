@@ -3,8 +3,8 @@ export const CARS = [
   {
     id: 1, make: 'Toyota', model: 'Corolla', year: 2021, km: 42000, price: 3800000,
     engine: '1800cc', fuel: 'Petrol', transmission: 'Auto', color: 'White', inspected: true,
-    seller: 'Muhammad Hasnain', location: 'Islamabad', memberSince: 'Jan 2024',
-    description: 'Well-maintained Toyota Corolla with full service history. Single owner, all original parts. Islamabad registered, all taxes paid.',
+    seller: 'Muhammad Hasnain', location: 'Rawalpindi', memberSince: 'Jan 2024',
+    description: 'Well-maintained Toyota Corolla with full service history. Single owner, all original parts. Rawalpindi registered, all taxes paid.',
     img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80',
     imgs: [
       'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&q=80',
@@ -55,7 +55,7 @@ export const CARS = [
   {
     id: 5, make: 'Toyota', model: 'Yaris', year: 2023, km: 12000, price: 3200000,
     engine: '1300cc', fuel: 'Petrol', transmission: 'Auto', color: 'Blue', inspected: true,
-    seller: 'Muhammad Hasnain', location: 'Islamabad', memberSince: 'Jan 2024',
+    seller: 'Muhammad Hasnain', location: 'Rawalpindi', memberSince: 'Jan 2024',
     description: 'Brand new condition Toyota Yaris. Dealer maintained, under warranty.',
     img: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&q=80',
     imgs: [
@@ -107,7 +107,7 @@ export const CARS = [
   {
     id: 9, make: 'Toyota', model: 'Fortuner', year: 2019, km: 78000, price: 9500000,
     engine: '2700cc', fuel: 'Petrol', transmission: 'Auto', color: 'Black', inspected: true,
-    seller: 'Muhammad Hasnain', location: 'Islamabad', memberSince: 'Jan 2024',
+    seller: 'Muhammad Hasnain', location: 'Rawalpindi', memberSince: 'Jan 2024',
     description: 'Toyota Fortuner Sigma 4 in black. All-terrain, tow bar, full service history.',
     img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80',
     imgs: [

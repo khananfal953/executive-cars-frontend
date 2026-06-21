@@ -1,25 +1,32 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { User, Mail, Phone, MapPin, Edit2, Save, X } from 'lucide-react'
 import SellerLayout from '../../components/SellerLayout.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import api from '../../api/api.js'
 
 export default function SellerProfilePage() {
   const { user, updateUser } = useAuth()
   const [editing, setEditing] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [form, setForm] = useState({
-    name:    user?.name    || '',
-    phone:   user?.phone   || '+92 300 0000000',
-    cnic:    user?.cnic    || '00000-0000000-0',
-    address: user?.address || 'Islamabad, Pakistan',
-  })
+  const [form, setForm] = useState({ name: user?.name || '', phone: '', cnic: '', address: '' })
+
+  useEffect(() => {
+    api.get('/seller/profile').then(res => {
+      const p = res.data
+      setForm({ name: p.name, phone: p.phone || '', cnic: p.cnic || '', address: p.address || '' })
+    }).catch(() => {})
+  }, [])
+
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  const handleSave = () => {
-    updateUser({ name: form.name, phone: form.phone })
-    setEditing(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  const handleSave = async () => {
+    try {
+      await api.put('/seller/profile', { name: form.name, phone: form.phone, address: form.address })
+      updateUser({ name: form.name })
+      setEditing(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch {}
   }
 
   return (

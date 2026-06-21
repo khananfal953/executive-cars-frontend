@@ -1,21 +1,28 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, Flame, Search } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
 import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
-import { ALL_AUCTIONS } from '../../data/auctions.js'
+import api from '../../api/api.js'
+
+function timeUntil(isoDate) {
+  const diff = Math.max(0, Math.floor((new Date(isoDate) - Date.now()) / 1000))
+  return { h: Math.floor(diff / 3600), m: Math.floor((diff % 3600) / 60), s: diff % 60 }
+}
 
 const AuctionCard = React.memo(function AuctionCard({ car }) {
+  const endsIn = timeUntil(car.auctionEnd)
+  const isHot = car.bidCount > 3
   return (
-    <Link to={`/auction/car/${car.id}`}
+    <Link to={`/auction/car/${car._id}`}
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
-        <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy"
+        <img src={car.images?.[0]} alt={`${car.make} ${car.model}`} loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute top-3 left-3 flex gap-2">
-          {car.hot && (
+          {isHot && (
             <span className="bg-red-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
               <Flame className="w-3 h-3" /> Hot
             </span>
@@ -25,20 +32,20 @@ const AuctionCard = React.memo(function AuctionCard({ car }) {
           </span>
         </div>
         <div className="absolute bottom-3 left-3 bg-black/50 rounded-lg px-2 py-1">
-          <CountdownTimer endsIn={car.endsIn} />
+          <CountdownTimer endsIn={endsIn} />
         </div>
       </div>
       <div className="p-4">
         <h3 className="text-gray-900 font-bold">{car.make} {car.model} {car.year}</h3>
-        <p className="text-gray-400 text-xs mt-0.5">{car.km.toLocaleString()} km · {car.engine}</p>
+        <p className="text-gray-400 text-xs mt-0.5">{car.km?.toLocaleString()} km · {car.engine} cc</p>
         <div className="flex items-center justify-between mt-3">
           <div>
             <p className="text-gray-400 text-xs">Current Bid</p>
             <p className="text-blue-600 font-black text-lg">PKR {formatPKR(car.currentBid)}</p>
-            <p className="text-gray-400 text-xs">Base: PKR {formatPKR(car.baseBid)}</p>
+            <p className="text-gray-400 text-xs">Base: PKR {formatPKR(car.basePrice)}</p>
           </div>
           <div className="text-right">
-            <p className="text-gray-400 text-xs">{car.bidders} bidders</p>
+            <p className="text-gray-400 text-xs">{car.bidCount} bidders</p>
             <button className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold mt-1 flex items-center gap-1">
               <Gavel className="w-3 h-3" /> Bid Now
             </button>
@@ -50,26 +57,40 @@ const AuctionCard = React.memo(function AuctionCard({ car }) {
 })
 
 export default function AuctionLiveAuctionsPage() {
+  const [cars, setCars] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
   const [sort, setSort] = useState('ending')
 
-  const filtered = useMemo(() => ALL_AUCTIONS
-    .filter(a => {
-      const matchSearch = `${a.make} ${a.model}`.toLowerCase().includes(search.toLowerCase())
-      const matchFilter = filter === 'All' || (filter === 'Hot' && a.hot) || (filter === 'Ending Soon' && a.endsIn.h < 2)
-      return matchSearch && matchFilter
-    })
-    .sort((a, b) => {
-      if (sort === 'ending') return (a.endsIn.h * 3600 + a.endsIn.m * 60 + a.endsIn.s) - (b.endsIn.h * 3600 + b.endsIn.m * 60 + b.endsIn.s)
-      if (sort === 'bid-high') return b.currentBid - a.currentBid
-      if (sort === 'bid-low') return a.currentBid - b.currentBid
-      return b.bidders - a.bidders
-    }), [search, filter, sort])
+  useEffect(() => {
+    api.get('/cars')
+      .then(res => setCars(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const now = Date.now()
+
+  const filtered = useMemo(() => {
+    return cars
+      .filter(a => {
+        const matchSearch = `${a.make} ${a.model}`.toLowerCase().includes(search.toLowerCase())
+        const matchFilter = filter === 'All'
+          || (filter === 'Hot' && a.bidCount > 3)
+          || (filter === 'Ending Soon' && (new Date(a.auctionEnd) - now) < 2 * 3600 * 1000)
+        return matchSearch && matchFilter
+      })
+      .sort((a, b) => {
+        if (sort === 'ending') return new Date(a.auctionEnd) - new Date(b.auctionEnd)
+        if (sort === 'bid-high') return b.currentBid - a.currentBid
+        if (sort === 'bid-low') return a.currentBid - b.currentBid
+        return b.bidCount - a.bidCount
+      })
+  }, [cars, search, filter, sort])
 
   return (
     <AuctionLayout title="Live Auctions">
-      {/* Top bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start sm:items-center justify-between">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative">
@@ -99,14 +120,15 @@ export default function AuctionLiveAuctionsPage() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-        {filtered.map(car => (
-          <AuctionCard key={car.id} car={car} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="text-center py-20 text-gray-400">Loading auctions...</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          {filtered.map(car => <AuctionCard key={car._id} car={car} />)}
+        </div>
+      )}
 
-      {filtered.length === 0 && (
+      {!loading && filtered.length === 0 && (
         <div className="text-center py-20 text-gray-400">
           <Gavel className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="font-medium">No auctions match your search.</p>

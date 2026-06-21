@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, CheckCircle, Crown, ArrowRight } from 'lucide-react'
 import Logo from '../../components/Logo.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const perks = [
   'Access to all live car auctions',
@@ -14,10 +15,12 @@ const perks = [
 
 export default function AuctionSignupPage() {
   const navigate = useNavigate()
+  const { registerMember } = useAuth()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', terms: false })
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const validate = () => {
@@ -30,12 +33,19 @@ export default function AuctionSignupPage() {
     return e
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setErrors({})
-    navigate('/auction/payment')
+    setLoading(true)
+    const result = await registerMember(form.name, form.email, form.phone, form.password)
+    setLoading(false)
+    if (result.success) {
+      navigate('/auction/payment')
+    } else {
+      setErrors({ email: result.message || 'Registration failed. Try a different email.' })
+    }
   }
 
   return (
@@ -135,8 +145,8 @@ export default function AuctionSignupPage() {
               </span>
             </label>
 
-            <button type="submit" className="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 mt-2 shadow-md shadow-blue-200">
-              Proceed to Payment <ArrowRight className="w-4 h-4" />
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 mt-2 shadow-md shadow-blue-200">
+              {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Proceed to Payment <ArrowRight className="w-4 h-4" /></>}
             </button>
           </form>
 

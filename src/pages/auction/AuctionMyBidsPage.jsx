@@ -1,17 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, ArrowUpRight } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
 import { formatPKR } from '../../utils/format.js'
-
-const MY_BIDS = [
-  { id: 1, car: 'Toyota Land Cruiser 2020', img: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=200&q=80', myBid: 12500000, currentBid: 12500000, status: 'Leading',  endsIn: '2h 34m', bidders: 14 },
-  { id: 2, car: 'Honda Civic 2022',         img: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=200&q=80', myBid: 4000000,  currentBid: 4200000,  status: 'Outbid',   endsIn: '5h 10m', bidders: 8  },
-  { id: 3, car: 'Kia Sportage 2021',        img: 'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=200&q=80', myBid: 5500000,  currentBid: 5800000,  status: 'Outbid',   endsIn: '48m',    bidders: 11 },
-  { id: 4, car: 'Toyota Fortuner 2019',     img: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&q=80', myBid: 9100000,  currentBid: 9100000,  status: 'Leading',  endsIn: '12h 5m', bidders: 6  },
-  { id: 5, car: 'BMW 3 Series 2020',        img: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=200&q=80', myBid: 8200000,  currentBid: 8500000,  status: 'Outbid',   endsIn: '3h 15m', bidders: 7  },
-  { id: 6, car: 'Hyundai Tucson 2021',      img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&q=80', myBid: 6700000,  currentBid: 6700000,  status: 'Won',      endsIn: 'Ended',  bidders: 9  },
-]
+import api from '../../api/api.js'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const statusConfig = {
   Leading: { color: 'badge-green', icon: TrendingUp,   text: 'You are leading' },
@@ -20,24 +13,51 @@ const statusConfig = {
 }
 
 export default function AuctionMyBidsPage() {
+  const { user } = useAuth()
+  const [bids, setBids] = useState([])
+  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('All')
 
-  const filtered = MY_BIDS.filter(b =>
-    filter === 'All' || b.status === filter
-  )
+  useEffect(() => {
+    api.get('/member/bids')
+      .then(res => setBids(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
-  const leading = MY_BIDS.filter(b => b.status === 'Leading').length
-  const outbid  = MY_BIDS.filter(b => b.status === 'Outbid').length
-  const won     = MY_BIDS.filter(b => b.status === 'Won').length
+  const mapped = bids.map(b => {
+    const car = b.car || b.carId || {}
+    const isLeading = car.highestBidder?._id === user?.id || car.highestBidder?.toString() === user?.id
+    const isEnded = car.status === 'ended'
+    const status = isEnded && isLeading ? 'Won' : isLeading ? 'Leading' : 'Outbid'
+    const secsLeft = Math.max(0, (new Date(car.auctionEnd) - Date.now()) / 1000)
+    const h = Math.floor(secsLeft / 3600), m = Math.floor((secsLeft % 3600) / 60)
+    const endsIn = isEnded ? 'Ended' : `${h}h ${m}m`
+    return {
+      id: car._id || b._id,
+      car: `${car.make} ${car.model} ${car.year}`,
+      img: car.images?.[0],
+      myBid: b.amount,
+      currentBid: car.currentBid,
+      status,
+      endsIn,
+      bidders: car.bidCount || 0,
+    }
+  })
+
+  const filtered = mapped.filter(b => filter === 'All' || b.status === filter)
+  const leading = mapped.filter(b => b.status === 'Leading').length
+  const outbid  = mapped.filter(b => b.status === 'Outbid').length
+  const won     = mapped.filter(b => b.status === 'Won').length
 
   return (
     <AuctionLayout title="My Bids">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: 'Total Bids',  value: MY_BIDS.length, color: 'text-blue-600',   bg: 'bg-blue-50',   border: 'border-blue-200'   },
-          { label: 'Leading',     value: leading,         color: 'text-green-600',  bg: 'bg-green-50',  border: 'border-green-200'  },
-          { label: 'Outbid',      value: outbid,          color: 'text-red-600',    bg: 'bg-red-50',    border: 'border-red-200'    },
+          { label: 'Total Bids',  value: mapped.length, color: 'text-blue-600',   bg: 'bg-blue-50',   border: 'border-blue-200'   },
+          { label: 'Leading',     value: leading,        color: 'text-green-600',  bg: 'bg-green-50',  border: 'border-green-200'  },
+          { label: 'Outbid',      value: outbid,         color: 'text-red-600',    bg: 'bg-red-50',    border: 'border-red-200'    },
         ].map(s => (
           <div key={s.label} className={`bg-white border ${s.border} rounded-2xl p-5 shadow-sm text-center`}>
             <div className={`text-3xl font-black ${s.color} mb-1`}>{s.value}</div>
@@ -57,6 +77,7 @@ export default function AuctionMyBidsPage() {
       </div>
 
       {/* Bids list */}
+      {loading && <div className="text-center py-12 text-gray-400">Loading bids...</div>}
       <div className="space-y-3">
         {filtered.map(bid => {
           const cfg = statusConfig[bid.status]

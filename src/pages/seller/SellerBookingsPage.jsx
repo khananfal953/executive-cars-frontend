@@ -1,20 +1,25 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { CheckCircle, Clock, XCircle } from 'lucide-react'
 import SellerLayout from '../../components/SellerLayout.jsx'
-
-const MY_BOOKINGS = [
-  { id: 1, car: 'Toyota Corolla 2020', date: '2026-05-20', branch: 'F-10 Branch', status: 'Approved', submittedOn: '2026-05-10' },
-  { id: 2, car: 'Honda Civic 2019', date: '2026-06-05', branch: 'G-11 Branch', status: 'Pending', submittedOn: '2026-05-12' },
-  { id: 3, car: 'Kia Sportage 2021', date: '2026-06-15', branch: 'Blue Area Branch', status: 'Pending', submittedOn: '2026-06-01' },
-]
+import api from '../../api/api.js'
 
 const statusConfig = {
-  Approved: { icon: CheckCircle, class: 'badge-green' },
-  Pending:  { icon: Clock,       class: 'badge-yellow' },
-  Rejected: { icon: XCircle,     class: 'badge-red' },
+  approved: { icon: CheckCircle, class: 'badge-green' },
+  pending:  { icon: Clock,       class: 'badge-yellow' },
+  rejected: { icon: XCircle,     class: 'badge-red' },
 }
 
 export default function SellerBookingsPage() {
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/seller/bookings')
+      .then(res => setBookings(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <SellerLayout title="My Bookings">
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
@@ -32,17 +37,21 @@ export default function SellerBookingsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {MY_BOOKINGS.map(b => {
-                const { icon: Icon, class: cls } = statusConfig[b.status] || statusConfig.Pending
+              {loading ? (
+                <tr><td colSpan={5} className="text-center py-12 text-gray-400">Loading bookings...</td></tr>
+              ) : bookings.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-12 text-gray-400">No bookings yet</td></tr>
+              ) : bookings.map(b => {
+                const { icon: Icon, class: cls } = statusConfig[b.status] || statusConfig.pending
                 return (
-                  <tr key={b.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-4 text-gray-900 font-medium">{b.car}</td>
+                  <tr key={b._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-4 text-gray-900 font-medium">{b.carMake} {b.carModel} {b.carYear}</td>
                     <td className="px-5 py-4 text-gray-600">{b.date}</td>
                     <td className="px-5 py-4 text-gray-600">{b.branch}</td>
-                    <td className="px-5 py-4 text-gray-600">{b.submittedOn}</td>
+                    <td className="px-5 py-4 text-gray-600">{new Date(b.createdAt).toLocaleDateString()}</td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex items-center gap-1 ${cls} text-xs px-2.5 py-1 rounded-full font-medium`}>
-                        <Icon className="w-3 h-3" /> {b.status}
+                        <Icon className="w-3 h-3" /> {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
                       </span>
                     </td>
                   </tr>

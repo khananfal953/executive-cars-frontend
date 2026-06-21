@@ -15,8 +15,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true); setError(false)
-    await new Promise(r => setTimeout(r, 800))
-    const result = login(form.email, form.password)
+    const result = await login(form.email, form.password)
     if (result.success && result.role === 'admin') {
       navigate('/admin/dashboard')
     } else {

@@ -8,110 +8,154 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx'
 import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
-import { ALL_AUCTIONS } from '../../data/auctions.js'
+import api from '../../api/api.js'
+import { connectSocket } from '../../api/socket.js'
 
-// ── Dummy bidders that auto-bid ──────────────────────────────────────────────
-const AUTO_BIDDERS = [
-  { name: 'AH***', avatar: 'AH' },
-  { name: 'MK***', avatar: 'MK' },
-  { name: 'SA***', avatar: 'SA' },
-  { name: 'WT***', avatar: 'WT' },
-  { name: 'RB***', avatar: 'RB' },
-  { name: 'ZK***', avatar: 'ZK' },
-]
+function timeUntilWithDays(isoDate) {
+  const diff = Math.max(0, Math.floor((new Date(isoDate) - Date.now()) / 1000))
+  const d = Math.floor(diff / 86400)
+  const h = Math.floor((diff % 86400) / 3600)
+  const m = Math.floor((diff % 3600) / 60)
+  const s = diff % 60
+  return { d, h, m, s }
+}
+
+function initials(name) {
+  return (name || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+}
 
 export default function AuctionCarDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
-  const car = ALL_AUCTIONS.find(a => a.id === Number(id)) || ALL_AUCTIONS[0]
 
-  const [currentBid, setCurrentBid] = useState(car.startBid + 500000)
+  const [car, setCar] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [currentBid, setCurrentBid] = useState(0)
   const [bidAmount, setBidAmount] = useState('')
   const [activeImg, setActiveImg] = useState(0)
-  const [bidHistory, setBidHistory] = useState([
-    { user: AUTO_BIDDERS[0].name, avatar: AUTO_BIDDERS[0].avatar, amount: car.startBid + 500000, time: '2 min ago', isMe: false },
-    { user: AUTO_BIDDERS[1].name, avatar: AUTO_BIDDERS[1].avatar, amount: car.startBid + 300000, time: '8 min ago', isMe: false },
-    { user: AUTO_BIDDERS[2].name, avatar: AUTO_BIDDERS[2].avatar, amount: car.startBid + 150000, time: '15 min ago', isMe: false },
-    { user: AUTO_BIDDERS[3].name, avatar: AUTO_BIDDERS[3].avatar, amount: car.startBid + 50000, time: '22 min ago', isMe: false },
-  ])
-  const [totalBidders, setTotalBidders] = useState(car.bidders)
+  const [bidHistory, setBidHistory] = useState([])
+  const [totalBidders, setTotalBidders] = useState(0)
   const [myBidPlaced, setMyBidPlaced] = useState(false)
   const [bidSuccess, setBidSuccess] = useState(false)
   const [bidError, setBidError] = useState('')
   const [liveActivity, setLiveActivity] = useState(null)
+  const [outbidAlert, setOutbidAlert] = useState(false)
+  const [auctionEnded, setAuctionEnded] = useState(false)
+  const [wonResult, setWonResult] = useState(null)
   const bidListRef = useRef(null)
 
-  const minBid = currentBid + 50000
-
-  // ── Auto-bid simulation: random bidder bids every 8-20 seconds ──────────────
   useEffect(() => {
-    const schedule = () => {
-      const delay = 8000 + Math.random() * 12000
-      return setTimeout(() => {
-        const bidder = AUTO_BIDDERS[Math.floor(Math.random() * AUTO_BIDDERS.length)]
-        const increment = [50000, 100000, 150000, 200000][Math.floor(Math.random() * 4)]
-        setCurrentBid(prev => {
-          const newBid = prev + increment
-          const entry = {
-            user: bidder.name,
-            avatar: bidder.avatar,
-            amount: newBid,
-            time: 'Just now',
-            isMe: false,
-          }
-          setBidHistory(h => [entry, ...h.slice(0, 9)])
-          setTotalBidders(b => b + (Math.random() > 0.6 ? 1 : 0))
-          setLiveActivity(`${bidder.name} just bid PKR ${formatPKR(newBid)}!`)
-          setTimeout(() => setLiveActivity(null), 4000)
-          return newBid
-        })
-        timerRef.current = schedule()
-      }, delay)
-    }
-    const timerRef = { current: schedule() }
-    return () => clearTimeout(timerRef.current)
-  }, [])
+    api.get(`/cars/${id}`).then(res => {
+      const c = res.data
+      setCar(c)
+      setCurrentBid(c.currentBid || c.basePrice)
+      setTotalBidders(c.bidCount || 0)
+      setAuctionEnded(c.status === 'ended')
+    }).catch(() => {}).finally(() => setLoading(false))
+  }, [id])
 
-  // Scroll bid list to top on new bid
+  useEffect(() => {
+    const token = localStorage.getItem('ec_token')
+    if (!token) return
+    const socket = connectSocket(token)
+
+    socket.emit('join-auction', id)
+
+    socket.on('bid-update', ({ carId, currentBid: newBid, highestBidder, bidCount }) => {
+      if (carId !== id) return
+      setCurrentBid(newBid)
+      setTotalBidders(bidCount)
+      const isMe = highestBidder?._id === user?.id
+      const displayName = isMe ? 'You' : (highestBidder?.name ? highestBidder.name.slice(0, 2) + '***' : 'Someone')
+      const entry = {
+        user: displayName,
+        avatar: initials(highestBidder?.name || '??'),
+        amount: newBid,
+        time: 'Just now',
+        isMe,
+      }
+      setBidHistory(h => [entry, ...h.slice(0, 9)])
+      setLiveActivity(`${displayName} just bid PKR ${formatPKR(newBid)}!`)
+      setTimeout(() => setLiveActivity(null), 4000)
+    })
+
+    socket.on('outbid', () => {
+      setOutbidAlert(true)
+      setTimeout(() => setOutbidAlert(false), 8000)
+    })
+
+    socket.on('auction-ended', ({ carId, finalBid, winner }) => {
+      if (carId !== id) return
+      setAuctionEnded(true)
+      setCurrentBid(finalBid)
+      setWonResult(winner && winner._id === user?.id ? winner : null)
+    })
+
+    return () => {
+      socket.emit('leave-auction', id)
+      socket.off('bid-update')
+      socket.off('outbid')
+      socket.off('auction-ended')
+    }
+  }, [id, user])
+
   useEffect(() => {
     bidListRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [bidHistory])
 
-  const handleBid = (e) => {
+  const minBid = currentBid + 50000
+
+  const handleBid = async (e) => {
     e.preventDefault()
     setBidError('')
+    if (auctionEnded) { setBidError('This auction has ended.'); return }
     const amount = Number(bidAmount)
     if (amount < minBid) {
       setBidError(`Minimum bid is PKR ${formatPKR(minBid)}`)
       return
     }
-    const myName = user?.name ? user.name.split(' ')[0] + '***' : 'You***'
-    const entry = {
-      user: myName,
-      avatar: (user?.name || 'ME').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
-      amount,
-      time: 'Just now',
-      isMe: true,
+    try {
+      await api.post('/bids', { carId: id, amount })
+      setMyBidPlaced(true)
+      setBidSuccess(true)
+      setBidAmount('')
+      setTimeout(() => setBidSuccess(false), 3000)
+    } catch (err) {
+      setBidError(err.response?.data?.message || 'Failed to place bid. Try again.')
     }
-    setCurrentBid(amount)
-    setBidHistory(h => [entry, ...h.slice(0, 9)])
-    setMyBidPlaced(true)
-    setBidSuccess(true)
-    setBidAmount('')
-    setTimeout(() => setBidSuccess(false), 3000)
   }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-400">Loading auction...</div>
+      </div>
+    )
+  }
+
+  if (!car) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center text-gray-400">
+          <p className="text-lg font-medium mb-2">Auction not found</p>
+          <Link to="/auction/live" className="text-blue-600 hover:underline text-sm">Back to auctions</Link>
+        </div>
+      </div>
+    )
+  }
+
+  const endsIn = timeUntilWithDays(car.auctionEnd)
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
-          <Link to="/auction/dashboard" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
+          <Link to="/auction/live" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
             <ChevronLeft className="w-5 h-5" />
             <span className="text-sm font-medium hidden sm:block">Back to Auctions</span>
           </Link>
           <div className="flex items-center gap-2 ml-auto">
-            {/* Live activity toast */}
             {liveActivity && (
               <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 text-xs px-3 py-1.5 rounded-full animate-fadeInUp font-medium">
                 <Zap className="w-3 h-3 text-blue-500" />
@@ -125,6 +169,18 @@ export default function AuctionCarDetailPage() {
         </div>
       </div>
 
+      {outbidAlert && !auctionEnded && (
+        <div className="sticky top-16 z-10 bg-orange-500 text-white text-center text-sm font-semibold py-2 px-4">
+          You've been outbid! Place a higher bid to stay in the lead.
+        </div>
+      )}
+
+      {auctionEnded && (
+        <div className={`sticky top-16 z-10 text-white text-center text-sm font-semibold py-2 px-4 ${wonResult ? 'bg-green-600' : 'bg-gray-700'}`}>
+          {wonResult ? `Auction ended — you won this car for PKR ${formatPKR(currentBid)}!` : 'This auction has ended.'}
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -133,32 +189,34 @@ export default function AuctionCarDetailPage() {
             {/* Gallery */}
             <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
               <div className="relative aspect-[16/9] overflow-hidden">
-                <img src={car.imgs[activeImg]} alt={`${car.make} ${car.model}`}
+                <img src={car.images?.[activeImg]} alt={`${car.make} ${car.model}`}
                   className="w-full h-full object-cover transition-all duration-300" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
-              <div className="flex gap-2 p-3 bg-gray-50">
-                {car.imgs.map((img, i) => (
-                  <button key={i} onClick={() => setActiveImg(i)}
-                    className={`w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${activeImg === i ? 'border-blue-500 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
+              {car.images?.length > 1 && (
+                <div className="flex gap-2 p-3 bg-gray-50">
+                  {car.images.map((img, i) => (
+                    <button key={i} onClick={() => setActiveImg(i)}
+                      className={`w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${activeImg === i ? 'border-blue-500 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Car title + specs */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h1 className="text-gray-900 font-black text-2xl mb-1">{car.make} {car.model} {car.year}</h1>
-              <p className="text-gray-500 text-sm mb-5">{car.km.toLocaleString()} km · {car.color} · {car.transmission}</p>
+              <p className="text-gray-500 text-sm mb-5">{car.km?.toLocaleString()} km · {car.color} · {car.transmission}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
-                  { icon: Settings, label: 'Engine', value: car.engine },
-                  { icon: Fuel, label: 'Fuel', value: car.fuel },
-                  { icon: Gauge, label: 'Transmission', value: car.transmission },
-                  { icon: Calendar, label: 'Year', value: car.year },
-                  { icon: Gauge, label: 'Mileage', value: `${car.km.toLocaleString()} km` },
-                  { icon: Palette, label: 'Color', value: car.color },
+                  { icon: Settings, label: 'Engine', value: car.engine ? `${car.engine} cc` : '—' },
+                  { icon: Fuel,     label: 'Fuel',   value: car.fuel },
+                  { icon: Gauge,    label: 'Transmission', value: car.transmission },
+                  { icon: Calendar, label: 'Year',   value: car.year },
+                  { icon: Gauge,    label: 'Mileage', value: `${car.km?.toLocaleString()} km` },
+                  { icon: Palette,  label: 'Color',  value: car.color },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center gap-3">
                     <Icon className="w-4 h-4 text-blue-600 shrink-0" />
@@ -179,14 +237,16 @@ export default function AuctionCarDetailPage() {
                   <h3 className="text-gray-900 font-bold">Inspection Report</h3>
                   <span className="badge-green text-xs px-2 py-0.5 rounded-full font-medium">Verified</span>
                 </div>
-                <div className="relative group">
-                  <button disabled className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 opacity-50 cursor-not-allowed">
+                {car.pdfUrl ? (
+                  <a href={car.pdfUrl} target="_blank" rel="noreferrer"
+                    className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1">
                     <Download className="w-3 h-3" /> Download PDF
+                  </a>
+                ) : (
+                  <button disabled className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 opacity-50 cursor-not-allowed">
+                    <Download className="w-3 h-3" /> No Report
                   </button>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    Available after backend integration
-                  </div>
-                </div>
+                )}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
@@ -211,10 +271,12 @@ export default function AuctionCarDetailPage() {
             </div>
 
             {/* Description */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-gray-900 font-bold mb-3">Description</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{car.desc}</p>
-            </div>
+            {car.description && (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-gray-900 font-bold mb-3">Description</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{car.description}</p>
+              </div>
+            )}
           </div>
 
           {/* ── RIGHT: Live Bid Panel ── */}
@@ -230,10 +292,12 @@ export default function AuctionCarDetailPage() {
                     <Users className="w-4 h-4" />
                     <span>{totalBidders} bidders</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-green-600 text-sm">
-                    <TrendingUp className="w-4 h-4" />
-                    <span>+PKR {formatPKR(currentBid - car.startBid)} above start</span>
-                  </div>
+                  {currentBid > car.basePrice && (
+                    <div className="flex items-center gap-1.5 text-green-600 text-sm">
+                      <TrendingUp className="w-4 h-4" />
+                      <span>+PKR {formatPKR(currentBid - car.basePrice)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -243,11 +307,16 @@ export default function AuctionCarDetailPage() {
                   <Timer className="w-4 h-4 text-blue-600" />
                   <span className="text-gray-700 text-sm font-semibold">Auction ends in</span>
                 </div>
-                <CountdownTimer endsIn={car.endsIn} showDays={true} />
+                <CountdownTimer endsIn={endsIn} showDays={true} />
               </div>
 
               {/* Bid form */}
-              {bidSuccess ? (
+              {auctionEnded ? (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center mb-4">
+                  <p className="text-gray-700 font-bold text-sm">Bidding is closed</p>
+                  <p className="text-gray-500 text-xs mt-1">This auction has ended.</p>
+                </div>
+              ) : bidSuccess ? (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center mb-4 animate-scaleIn">
                   <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
                   <p className="text-green-700 font-bold text-sm">Bid Placed Successfully!</p>
@@ -264,7 +333,6 @@ export default function AuctionCarDetailPage() {
                       className={`input-light ${bidError ? 'border-red-400' : ''}`} />
                     {bidError && <p className="text-red-500 text-xs mt-1">{bidError}</p>}
                   </div>
-                  {/* Quick bid buttons */}
                   <div className="flex gap-2">
                     {[minBid, minBid + 100000, minBid + 200000].map(amt => (
                       <button key={amt} type="button" onClick={() => setBidAmount(String(amt))}
@@ -296,7 +364,9 @@ export default function AuctionCarDetailPage() {
                   </span>
                 </div>
                 <div ref={bidListRef} className="space-y-2 max-h-52 overflow-y-auto pr-1">
-                  {bidHistory.map((bid, i) => (
+                  {bidHistory.length === 0 ? (
+                    <p className="text-gray-400 text-xs text-center py-4">No bids yet. Be the first!</p>
+                  ) : bidHistory.map((bid, i) => (
                     <div key={i}
                       className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${
                         i === 0 ? 'bg-blue-50 border border-blue-200' :

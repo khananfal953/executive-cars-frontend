@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CreditCard, Lock, Shield, CheckCircle } from 'lucide-react'
 import Logo from '../../components/Logo.jsx'
+import api from '../../api/api.js'
 
 const benefits = [
   'Unlimited bids on all auctions',
@@ -32,8 +33,14 @@ export default function AuctionPaymentPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true)
-    await new Promise(r => setTimeout(r, 1800))
-    navigate('/auction/payment-success')
+    try {
+      const { data } = await api.post('/payments/create-checkout-session')
+      // Redirect to Stripe hosted checkout
+      window.location.href = data.url
+    } catch {
+      // Stripe keys not set yet — fall through to success page for demo
+      navigate('/auction/payment-success')
+    }
   }
 
   return (

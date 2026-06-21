@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { User, Mail, Phone, Calendar, Shield, Edit3, Save, X, Key, CheckCircle, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import api from '../../api/api.js'
 
 export default function AuctionProfilePage() {
   const { user, logout, updateUser } = useAuth()
@@ -10,30 +11,58 @@ export default function AuctionProfilePage() {
 
   const [editing, setEditing] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [profile, setProfile] = useState(null)
   const [form, setForm] = useState({
-    name: user?.name || 'Ahmed Raza',
-    email: user?.email || 'buyer@executivecars.pk',
-    phone: '+92 300 1234567',
-    cnic: '35202-1234567-1',
-    city: 'Islamabad',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    cnic: '',
+    city: '',
   })
   const [passForm, setPassForm] = useState({ current: '', newPass: '', confirm: '' })
   const [showPassSection, setShowPassSection] = useState(false)
+  const [passError, setPassError] = useState('')
+  const [passSaved, setPassSaved] = useState(false)
+
+  useEffect(() => {
+    api.get('/member/profile').then(res => {
+      const p = res.data
+      setProfile(p)
+      setForm({ name: p.name, email: p.email, phone: p.phone || '', cnic: p.cnic || '', city: p.city || '' })
+    }).catch(() => {})
+  }, [])
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  const handleSave = () => {
-    updateUser({ name: form.name, phone: form.phone })
-    setEditing(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  const handleSave = async () => {
+    try {
+      await api.put('/member/profile', { name: form.name, phone: form.phone, city: form.city })
+      updateUser({ name: form.name })
+      setEditing(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch {}
+  }
+
+  const handleChangePassword = async () => {
+    setPassError('')
+    if (passForm.newPass !== passForm.confirm) { setPassError('Passwords do not match.'); return }
+    try {
+      await api.post('/auth/change-password', { current: passForm.current, newPassword: passForm.newPass })
+      setPassSaved(true)
+      setPassForm({ current: '', newPass: '', confirm: '' })
+      setTimeout(() => setPassSaved(false), 3000)
+    } catch (err) {
+      setPassError(err.response?.data?.message || 'Failed to update password.')
+    }
   }
 
   const handleLogout = () => { logout(); navigate('/auction') }
 
-  const memberSince = '2026-01-15'
-  const memberExpiry = '2027-01-15'
-  const memberId = 'EC-A7B3C9D2'
+  const memberSince = profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '—'
+  const memberExpiry = profile?.subscriptionExpiry ? new Date(profile.subscriptionExpiry).toLocaleDateString() : '—'
+  const daysLeft = profile?.subscriptionExpiry ? Math.max(0, Math.ceil((new Date(profile.subscriptionExpiry) - Date.now()) / (1000 * 60 * 60 * 24))) : 0
+  const memberId = profile?._id ? 'EC-' + profile._id.toString().slice(-8).toUpperCase() : '—'
 
   return (
     <AuctionLayout title="My Profile">
@@ -129,15 +158,7 @@ export default function AuctionProfilePage() {
           <div className="mt-4 pt-4 border-t border-white/20 flex items-center justify-between">
             <div>
               <p className="text-blue-200 text-xs">Days Remaining</p>
-              <p className="text-white font-black text-3xl">287</p>
-            </div>
-            <div className="relative group">
-              <button disabled className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-semibold opacity-50 cursor-not-allowed">
-                Renew Membership
-              </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                Available after backend integration
-              </div>
+              <p className="text-white font-black text-3xl">{daysLeft}</p>
             </div>
           </div>
         </div>
@@ -171,14 +192,11 @@ export default function AuctionProfilePage() {
                     className="input-light" placeholder="••••••••" />
                 </div>
               ))}
-              <div className="relative group inline-block">
-                <button disabled className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm opacity-50 cursor-not-allowed">
-                  Update Password
-                </button>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  Available after backend integration
-                </div>
-              </div>
+              {passError && <p className="text-red-600 text-xs">{passError}</p>}
+              {passSaved && <p className="text-green-600 text-xs flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Password updated!</p>}
+              <button onClick={handleChangePassword} className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm">
+                Update Password
+              </button>
             </div>
           )}
         </div>

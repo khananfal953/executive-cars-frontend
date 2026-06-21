@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, SlidersHorizontal, Heart, Eye, Fuel, Settings, Gauge, ChevronLeft, ChevronRight, CheckCircle, X } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { formatPKR } from '../utils/format.js'
-import { CARS } from '../data/cars.js'
+import api from '../api/api.js'
 
 const brands = ['All', 'Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai']
 const fuelTypes = ['Petrol', 'Diesel', 'CNG', 'Hybrid']
@@ -77,7 +77,16 @@ export default function UsedCarsPage() {
   })
   const [page, setPage] = useState(1)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [cars, setCars] = useState([])
+  const [loading, setLoading] = useState(true)
   const PER_PAGE = 6
+
+  useEffect(() => {
+    api.get('/products')
+      .then(res => setCars(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const toggleBrand = (b) => {
     if (b === 'All') { setSelectedBrands(['All']); return }
@@ -93,7 +102,7 @@ export default function UsedCarsPage() {
     })
   }
 
-  const filtered = useMemo(() => CARS.filter(c => {
+  const filtered = useMemo(() => cars.filter(c => {
     if (!selectedBrands.includes('All') && !selectedBrands.includes(c.make)) return false
     if (c.price > priceRange[1]) return false
     if (c.km > mileageMax) return false
@@ -106,7 +115,7 @@ export default function UsedCarsPage() {
     if (sort === 'price-desc') return b.price - a.price
     if (sort === 'km-asc') return a.km - b.km
     return b.year - a.year
-  }), [selectedBrands, priceRange, mileageMax, transmission, selectedFuels, search, sort])
+  }), [cars, selectedBrands, priceRange, mileageMax, transmission, selectedFuels, search, sort])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
@@ -162,7 +171,9 @@ export default function UsedCarsPage() {
 
             {/* Cards */}
             <div className="flex-1">
-              {paginated.length === 0 ? (
+              {loading ? (
+                <div className="text-center py-24 text-gray-400">Loading cars...</div>
+              ) : paginated.length === 0 ? (
                 <div className="text-center py-24 text-gray-400">
                   <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
                   <p>No cars match your filters.</p>
@@ -170,23 +181,21 @@ export default function UsedCarsPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {paginated.map(car => (
-                    <div key={car.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
+                    <div key={car._id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
                       <div className="relative aspect-[16/10] overflow-hidden">
-                        <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img src={car.images?.[0]} alt={`${car.make} ${car.model}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute top-3 left-3 flex gap-2">
-                          {car.inspected && (
-                            <span className="badge-green text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
-                              <CheckCircle className="w-3 h-3" /> Inspected
-                            </span>
-                          )}
+                          <span className="badge-green text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
+                            <CheckCircle className="w-3 h-3" /> Inspected
+                          </span>
                           <span className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">{car.year}</span>
                         </div>
                         <div className="absolute top-3 right-3">
-                          <span className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">{car.km.toLocaleString()} km</span>
+                          <span className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">{car.km?.toLocaleString()} km</span>
                         </div>
-                        <button onClick={() => toggleSave(car.id)}
+                        <button onClick={() => toggleSave(car._id)}
                           className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow transition-all hover:scale-110">
-                          <Heart className={`w-4 h-4 ${saved.includes(car.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} />
+                          <Heart className={`w-4 h-4 ${saved.includes(car._id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} />
                         </button>
                       </div>
                       <div className="p-4">
@@ -198,7 +207,7 @@ export default function UsedCarsPage() {
                         </div>
                         <div className="mt-3 flex items-center justify-between">
                           <span className="text-blue-600 font-black text-lg">PKR {formatPKR(car.price)}</span>
-                          <Link to={`/used-cars/${car.id}`} className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
+                          <Link to={`/used-cars/${car._id}`} className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
                             <Eye className="w-3 h-3" /> View
                           </Link>
                         </div>

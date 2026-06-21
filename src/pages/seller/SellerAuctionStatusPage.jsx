@@ -1,16 +1,32 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Gavel } from 'lucide-react'
 import SellerLayout from '../../components/SellerLayout.jsx'
 import { formatPKR } from '../../utils/format.js'
+import api from '../../api/api.js'
 
-const MY_AUCTIONS = [
-  { id: 1, car: 'Toyota Corolla 2020', startBid: 3500000, currentBid: 4100000, bidders: 7, endsIn: '2h 34m', status: 'Live' },
-  { id: 2, car: 'Honda Civic 2019', startBid: 3200000, currentBid: 3200000, bidders: 0, endsIn: '5 days', status: 'Upcoming' },
-]
+const statusClass = { active: 'badge-green', upcoming: 'badge-blue', ended: 'badge-red' }
 
-const statusClass = { Live: 'badge-green', Upcoming: 'badge-blue', Ended: 'badge-red' }
+function timeLeftLabel(isoDate) {
+  const diff = new Date(isoDate) - Date.now()
+  if (diff <= 0) return 'Ended'
+  const days = Math.floor(diff / 86400000)
+  if (days >= 1) return `${days} day${days > 1 ? 's' : ''}`
+  const hours = Math.floor(diff / 3600000)
+  const mins = Math.floor((diff % 3600000) / 60000)
+  return `${hours}h ${mins}m`
+}
 
 export default function SellerAuctionStatusPage() {
+  const [auctions, setAuctions] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get('/seller/auction-status')
+      .then(res => setAuctions(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <SellerLayout title="Auction Status">
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
@@ -28,18 +44,22 @@ export default function SellerAuctionStatusPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {MY_AUCTIONS.map(a => (
-                <tr key={a.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-4 text-gray-900 font-medium">{a.car}</td>
-                  <td className="px-5 py-4 text-gray-600">PKR {formatPKR(a.startBid)}</td>
+              {loading ? (
+                <tr><td colSpan={6} className="text-center py-12 text-gray-400">Loading auctions...</td></tr>
+              ) : auctions.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-12 text-gray-400">No cars in auction yet</td></tr>
+              ) : auctions.map(a => (
+                <tr key={a._id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-4 text-gray-900 font-medium">{a.make} {a.model} {a.year}</td>
+                  <td className="px-5 py-4 text-gray-600">PKR {formatPKR(a.basePrice)}</td>
                   <td className="px-5 py-4 text-blue-600 font-bold">PKR {formatPKR(a.currentBid)}</td>
                   <td className="px-5 py-4 text-gray-600">
-                    <span className="flex items-center gap-1"><Gavel className="w-3 h-3" />{a.bidders}</span>
+                    <span className="flex items-center gap-1"><Gavel className="w-3 h-3" />{a.bidCount}</span>
                   </td>
-                  <td className="px-5 py-4 text-gray-600">{a.endsIn}</td>
+                  <td className="px-5 py-4 text-gray-600">{timeLeftLabel(a.auctionEnd)}</td>
                   <td className="px-5 py-4">
-                    <span className={`inline-flex items-center gap-1 ${statusClass[a.status]} text-xs px-2.5 py-1 rounded-full font-medium`}>
-                      {a.status}
+                    <span className={`inline-flex items-center gap-1 ${statusClass[a.status] || 'badge-blue'} text-xs px-2.5 py-1 rounded-full font-medium`}>
+                      {a.status?.charAt(0).toUpperCase() + a.status?.slice(1)}
                     </span>
                   </td>
                 </tr>

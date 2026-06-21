@@ -1,15 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, Fuel, Settings, Gauge, Palette, Calendar, MapPin, User, Shield } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Fuel, Settings, Gauge, Calendar, Mail, Shield } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
-import { CARS } from '../data/cars.js'
 import { formatPKR } from '../utils/format.js'
+import api from '../api/api.js'
 
 export default function UsedCarDetailPage() {
   const { id } = useParams()
-  const car = CARS.find(c => c.id === Number(id))
+  const [car, setCar] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [activeImg, setActiveImg] = useState(0)
+
+  useEffect(() => {
+    api.get(`/products/${id}`)
+      .then(res => setCar(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center text-gray-400">Loading...</div>
+        <Footer />
+      </div>
+    )
+  }
 
   if (!car) {
     return (
@@ -26,7 +44,7 @@ export default function UsedCarDetailPage() {
     )
   }
 
-  const images = car.imgs || [car.img]
+  const images = car.images?.length ? car.images : []
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -34,7 +52,6 @@ export default function UsedCarDetailPage() {
 
       <div className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Back link */}
           <Link to="/used-cars" className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Used Cars
           </Link>
@@ -42,7 +59,6 @@ export default function UsedCarDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left: images + specs */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Image gallery */}
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 <div className="aspect-[16/9] overflow-hidden">
                   <img src={images[activeImg]} alt={`${car.make} ${car.model}`} loading="lazy"
@@ -60,12 +76,11 @@ export default function UsedCarDetailPage() {
                 )}
               </div>
 
-              {/* Key specs bar */}
               <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
                     { icon: Calendar,  label: 'Year',         value: car.year },
-                    { icon: Gauge,     label: 'Mileage',      value: `${car.km.toLocaleString()} km` },
+                    { icon: Gauge,     label: 'Mileage',      value: `${car.km?.toLocaleString()} km` },
                     { icon: Fuel,      label: 'Fuel',         value: car.fuel },
                     { icon: Settings,  label: 'Transmission', value: car.transmission },
                   ].map(({ icon: Icon, label, value }) => (
@@ -80,7 +95,6 @@ export default function UsedCarDetailPage() {
                 </div>
               </div>
 
-              {/* Full specs */}
               <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                 <h2 className="text-gray-900 font-bold text-lg mb-4">Full Specifications</h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -88,11 +102,11 @@ export default function UsedCarDetailPage() {
                     { label: 'Make',         value: car.make },
                     { label: 'Model',        value: car.model },
                     { label: 'Year',         value: car.year },
-                    { label: 'Engine',       value: car.engine },
+                    { label: 'Engine',       value: car.engine ? `${car.engine} cc` : '—' },
                     { label: 'Color',        value: car.color },
                     { label: 'Fuel Type',    value: car.fuel },
                     { label: 'Transmission', value: car.transmission },
-                    { label: 'Mileage',      value: `${car.km.toLocaleString()} km` },
+                    { label: 'Mileage',      value: `${car.km?.toLocaleString()} km` },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
                       <span className="text-gray-500 text-sm">{label}</span>
@@ -102,66 +116,50 @@ export default function UsedCarDetailPage() {
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <h2 className="text-gray-900 font-bold text-lg mb-3">Description</h2>
-                <p className="text-gray-600 text-sm leading-relaxed">{car.description}</p>
-              </div>
+              {car.description && (
+                <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                  <h2 className="text-gray-900 font-bold text-lg mb-3">Description</h2>
+                  <p className="text-gray-600 text-sm leading-relaxed">{car.description}</p>
+                </div>
+              )}
             </div>
 
             {/* Right: price panel + seller info */}
             <div className="space-y-4">
-              {/* Price + status */}
               <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <h1 className="text-gray-900 font-black text-xl">{car.make} {car.model}</h1>
                 </div>
-                {car.inspected && (
-                  <span className="inline-flex items-center gap-1 badge-green text-xs px-3 py-1.5 rounded-full font-medium mb-4">
-                    <CheckCircle className="w-3 h-3" /> Executive Inspected
-                  </span>
-                )}
+                <span className="inline-flex items-center gap-1 badge-green text-xs px-3 py-1.5 rounded-full font-medium mb-4">
+                  <CheckCircle className="w-3 h-3" /> Executive Inspected
+                </span>
                 <div className="text-3xl font-black primary-text mb-1">PKR {formatPKR(car.price)}</div>
                 <p className="text-gray-400 text-xs mb-5">Fixed price listing</p>
 
                 <div className="space-y-3">
-                  <div className="relative group">
-                    <button disabled className="btn-primary w-full py-3 rounded-xl font-semibold opacity-50 cursor-not-allowed">
-                      Book Inspection
-                    </button>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      Available after backend integration
-                    </div>
-                  </div>
-                  <div className="relative group">
-                    <button disabled className="btn-ghost w-full py-3 rounded-xl font-semibold opacity-50 cursor-not-allowed">
-                      Contact Seller
-                    </button>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      Available after backend integration
-                    </div>
-                  </div>
+                  <Link to="/become-a-seller" className="btn-primary w-full py-3 rounded-xl font-semibold text-center block">
+                    Book Inspection
+                  </Link>
+                  <a href={`mailto:${car.sellerEmail}`} className="btn-ghost w-full py-3 rounded-xl font-semibold text-center block">
+                    Contact Seller
+                  </a>
                 </div>
               </div>
 
-              {/* Seller info */}
               <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                 <h3 className="text-gray-900 font-bold mb-4">Seller Information</h3>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {car.seller.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                    {(car.sellerEmail || '??').slice(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-gray-900 font-semibold text-sm">{car.seller}</p>
+                    <p className="text-gray-900 font-semibold text-sm break-all">{car.sellerEmail}</p>
                     <p className="text-blue-600 text-xs">Verified Seller</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin className="w-4 h-4 shrink-0" /> {car.location}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <User className="w-4 h-4 shrink-0" /> Member since {car.memberSince}
+                    <Mail className="w-4 h-4 shrink-0" /> {car.sellerEmail}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <Shield className="w-4 h-4 shrink-0" /> Identity Verified

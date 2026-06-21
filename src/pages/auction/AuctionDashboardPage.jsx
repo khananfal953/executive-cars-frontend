@@ -1,23 +1,28 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Gavel, TrendingUp, Trophy, Clock, Flame, ArrowUpRight } from 'lucide-react'
 import AuctionLayout from '../../components/AuctionLayout.jsx'
 import CountdownTimer from '../../components/CountdownTimer.jsx'
 import { formatPKR } from '../../utils/format.js'
-import { ALL_AUCTIONS } from '../../data/auctions.js'
+import api from '../../api/api.js'
 
-const AUCTIONS = ALL_AUCTIONS.slice(0, 6)
+function timeUntil(isoDate) {
+  const diff = Math.max(0, Math.floor((new Date(isoDate) - Date.now()) / 1000))
+  return { h: Math.floor(diff / 3600), m: Math.floor((diff % 3600) / 60), s: diff % 60 }
+}
 
 const AuctionCard = React.memo(function AuctionCard({ car }) {
+  const endsIn = timeUntil(car.auctionEnd)
+  const isHot = car.bidCount > 3
   return (
-    <Link to={`/auction/car/${car.id}`}
+    <Link to={`/auction/car/${car._id}`}
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden card-hover group shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
-        <img src={car.img} alt={`${car.make} ${car.model}`} loading="lazy"
+        <img src={car.images?.[0]} alt={`${car.make} ${car.model}`} loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute top-3 left-3 flex gap-2">
-          {car.hot && (
+          {isHot && (
             <span className="bg-red-500/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium">
               <Flame className="w-3 h-3" /> Hot
             </span>
@@ -27,7 +32,7 @@ const AuctionCard = React.memo(function AuctionCard({ car }) {
           </span>
         </div>
         <div className="absolute bottom-3 right-3">
-          <CountdownTimer endsIn={car.endsIn} />
+          <CountdownTimer endsIn={endsIn} />
         </div>
       </div>
       <div className="p-4">
@@ -38,7 +43,7 @@ const AuctionCard = React.memo(function AuctionCard({ car }) {
             <p className="text-blue-600 font-black text-lg">PKR {formatPKR(car.currentBid)}</p>
           </div>
           <div className="text-right">
-            <p className="text-gray-400 text-xs">{car.bidders} bidders</p>
+            <p className="text-gray-400 text-xs">{car.bidCount} bidders</p>
             <button className="btn-primary px-4 py-2 rounded-lg text-xs font-semibold mt-1 flex items-center gap-1">
               <Gavel className="w-3 h-3" /> Bid Now
             </button>
@@ -49,24 +54,40 @@ const AuctionCard = React.memo(function AuctionCard({ car }) {
   )
 })
 
-const stats = [
-  { icon: Gavel,     label: 'Active Auctions', value: 6,   bg: 'bg-blue-50',   color: 'text-blue-600',   border: 'border-blue-200'   },
-  { icon: TrendingUp,label: 'My Total Bids',   value: 12,  bg: 'bg-green-50',  color: 'text-green-600',  border: 'border-green-200'  },
-  { icon: Trophy,    label: 'Auctions Won',    value: 2,   bg: 'bg-yellow-50', color: 'text-yellow-600', border: 'border-yellow-200' },
-  { icon: Clock,     label: 'Days Left',       value: 287, bg: 'bg-purple-50', color: 'text-purple-600', border: 'border-purple-200' },
-]
-
 export default function AuctionDashboardPage() {
+  const [cars, setCars] = useState([])
+  const [memberStats, setMemberStats] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [filter, setFilter] = useState('All')
-  const filtered = useMemo(() => filter === 'Hot'
-    ? AUCTIONS.filter(a => a.hot)
-    : filter === 'Ending Soon'
-    ? AUCTIONS.filter(a => a.endsIn.h < 2)
-    : AUCTIONS, [filter])
+
+  useEffect(() => {
+    api.get('/cars').then(res => setCars(res.data)).catch(() => {})
+    api.get('/member/stats').then(res => setMemberStats(res.data)).catch(() => {})
+    api.get('/member/profile').then(res => setProfile(res.data)).catch(() => {})
+  }, [])
+
+  const daysLeft = profile?.subscriptionExpiry
+    ? Math.max(0, Math.ceil((new Date(profile.subscriptionExpiry) - Date.now()) / (1000 * 60 * 60 * 24)))
+    : '—'
+
+  const stats = [
+    { icon: Gavel,      label: 'Active Auctions', value: cars.length,                  bg: 'bg-blue-50',   color: 'text-blue-600',   border: 'border-blue-200'   },
+    { icon: TrendingUp, label: 'My Total Bids',   value: memberStats?.totalBids ?? 0,  bg: 'bg-green-50',  color: 'text-green-600',  border: 'border-green-200'  },
+    { icon: Trophy,     label: 'Auctions Won',    value: memberStats?.wonCars ?? 0,    bg: 'bg-yellow-50', color: 'text-yellow-600', border: 'border-yellow-200' },
+    { icon: Clock,      label: 'Days Left',       value: daysLeft,                     bg: 'bg-purple-50', color: 'text-purple-600', border: 'border-purple-200' },
+  ]
+
+  const displayed = cars.slice(0, 6)
+
+  const filtered = useMemo(() => {
+    const now = Date.now()
+    if (filter === 'Hot') return displayed.filter(a => a.bidCount > 3)
+    if (filter === 'Ending Soon') return displayed.filter(a => new Date(a.auctionEnd) - now < 2 * 3600 * 1000)
+    return displayed
+  }, [filter, displayed])
 
   return (
     <AuctionLayout title="Dashboard">
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map(s => (
           <div key={s.label} className={`bg-white border ${s.border} rounded-2xl p-5 shadow-sm`}>
@@ -79,7 +100,6 @@ export default function AuctionDashboardPage() {
         ))}
       </div>
 
-      {/* Live Auctions header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <h2 className="text-gray-900 font-bold text-xl">Live Auctions</h2>
@@ -102,12 +122,16 @@ export default function AuctionDashboardPage() {
         </div>
       </div>
 
-      {/* Auction cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-        {filtered.map(car => (
-          <AuctionCard key={car.id} car={car} />
-        ))}
-      </div>
+      {cars.length === 0 ? (
+        <div className="text-center py-20 text-gray-400">
+          <Gavel className="w-12 h-12 mx-auto mb-3 opacity-30" />
+          <p>No active auctions right now.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          {filtered.map(car => <AuctionCard key={car._id} car={car} />)}
+        </div>
+      )}
     </AuctionLayout>
   )
 }

@@ -1,24 +1,73 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { ClipboardCheck, FileText, CheckCircle, Upload, ChevronRight, X, RefreshCw, Car } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
+import api from '../api/api.js'
 
 const steps = [
   { icon: ClipboardCheck, label: 'Fill Form', desc: 'Provide your personal and car details' },
   { icon: FileText, label: 'Documents', desc: 'Upload CNIC and vehicle registration' },
   { icon: CheckCircle, label: 'Admin Approval', desc: 'Our team reviews and confirms your slot' },
 ]
-const branches = ['Islamabad - F-10 Branch', 'Islamabad - G-11 Branch', 'Rawalpindi - Saddar Branch']
+const branches = ['Rawalpindi - Stadium Road Branch', 'Rawalpindi - Saddar Branch']
 
 export default function BecomeSellerPage() {
+  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [showOTP, setShowOTP] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [otpTimer, setOtpTimer] = useState(60)
+  const [otpError, setOtpError] = useState('')
+  const [verifying, setVerifying] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({ name: '', phone: '', cnic: '', email: '', make: '', model: '', year: '', mileage: '', engine: '', cnicFile: null, regFile: null, date: '', branch: '' })
   const [fieldErrors, setFieldErrors] = useState({})
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const startOtpTimer = () => {
+    setOtpTimer(60)
+    const timer = setInterval(() => {
+      setOtpTimer(t => { if (t <= 1) { clearInterval(timer); return 0 } return t - 1 })
+    }, 1000)
+  }
+
+  const handleResendOtp = async () => {
+    try {
+      await api.post('/bookings/send-otp', { email: form.email })
+      startOtpTimer()
+    } catch {}
+  }
+
+  const handleVerifyOtp = async () => {
+    setOtpError('')
+    setVerifying(true)
+    try {
+      await api.post('/bookings/verify-otp', { email: form.email, otp: otp.join('') })
+      const fd = new FormData()
+      fd.append('name', form.name)
+      fd.append('phone', form.phone)
+      fd.append('cnic', form.cnic)
+      fd.append('email', form.email)
+      fd.append('carMake', form.make)
+      fd.append('carModel', form.model)
+      fd.append('carYear', form.year)
+      fd.append('mileage', form.mileage)
+      fd.append('engineCC', form.engine)
+      fd.append('date', form.date)
+      fd.append('branch', form.branch)
+      if (form.cnicFile) fd.append('cnicImage', form.cnicFile)
+      if (form.regFile) fd.append('regDoc', form.regFile)
+      setSubmitting(true)
+      await api.post('/bookings', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      setShowOTP(false)
+      navigate('/')
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Invalid or expired OTP.')
+    }
+    setVerifying(false)
+    setSubmitting(false)
+  }
 
   const validateStep = (stepNum) => {
     const e = {}
@@ -42,15 +91,19 @@ export default function BecomeSellerPage() {
     if (val && i < 5) document.getElementById(`otp-${i + 1}`)?.focus()
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validateStep(step)
     if (Object.keys(errs).length > 0) { setFieldErrors(errs); return }
     setFieldErrors({})
     if (step < 3) { setStep(s => s + 1); return }
-    setShowOTP(true)
-    let t = 60
-    const timer = setInterval(() => { t--; setOtpTimer(t); if (t <= 0) clearInterval(timer) }, 1000)
+    try {
+      await api.post('/bookings/send-otp', { email: form.email })
+      setShowOTP(true)
+      startOtpTimer()
+    } catch (err) {
+      setFieldErrors({ date: err.response?.data?.message || 'Failed to send OTP. Try again.' })
+    }
   }
 
   return (
@@ -246,19 +299,22 @@ export default function BecomeSellerPage() {
               <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-gray-900 font-bold text-xl">Verify Your Phone</h3>
-              <p className="text-gray-500 text-sm mt-2">Enter the 6-digit OTP sent to {form.phone}</p>
+              <h3 className="text-gray-900 font-bold text-xl">Verify Your Email</h3>
+              <p className="text-gray-500 text-sm mt-2">Enter the 6-digit OTP sent to {form.email}</p>
             </div>
-            <div className="flex gap-2 justify-center mb-6">
+            <div className="flex gap-2 justify-center mb-4">
               {otp.map((d, i) => (
                 <input key={i} id={`otp-${i}`} type="text" maxLength={1} value={d} onChange={e => handleOtpChange(i, e.target.value)}
                   className="w-11 h-12 bg-gray-50 border-2 border-gray-200 rounded-lg text-center text-gray-900 text-lg font-bold focus:outline-none focus:border-blue-500 transition-colors" />
               ))}
             </div>
-            <button className="btn-primary w-full py-3 rounded-xl font-semibold text-sm mb-3">Verify OTP</button>
+            {otpError && <p className="text-red-600 text-xs text-center mb-3">{otpError}</p>}
+            <button onClick={handleVerifyOtp} disabled={verifying || submitting} className="btn-primary w-full py-3 rounded-xl font-semibold text-sm mb-3">
+              {verifying || submitting ? 'Verifying...' : 'Verify OTP'}
+            </button>
             <div className="text-center text-sm text-gray-500">
               {otpTimer > 0 ? <span>Resend in {otpTimer}s</span> : (
-                <button className="text-blue-600 flex items-center gap-1 mx-auto hover:underline">
+                <button onClick={handleResendOtp} className="text-blue-600 flex items-center gap-1 mx-auto hover:underline">
                   <RefreshCw className="w-3 h-3" /> Resend OTP
                 </button>
               )}

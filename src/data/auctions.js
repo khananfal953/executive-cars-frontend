@@ -12,7 +12,7 @@ export const ALL_AUCTIONS = [
       'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80',
       'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80',
     ],
-    desc: 'Excellent condition Toyota Land Cruiser with full service history. Single owner, all original parts. Islamabad registered, all taxes paid.',
+    desc: 'Excellent condition Toyota Land Cruiser with full service history. Single owner, all original parts. Rawalpindi registered, all taxes paid.',
   },
   {
     id: 2, make: 'Honda', model: 'Civic', year: 2022, km: 18000,
@@ -40,7 +40,7 @@ export const ALL_AUCTIONS = [
       'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80',
       'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80',
     ],
-    desc: 'Kia Sportage in excellent condition. Full service history, original parts. Islamabad registered.',
+    desc: 'Kia Sportage in excellent condition. Full service history, original parts. Rawalpindi registered.',
   },
   {
     id: 4, make: 'Toyota', model: 'Fortuner', year: 2019, km: 78000,
@@ -110,7 +110,7 @@ export const ALL_AUCTIONS = [
       'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80',
       'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&q=80',
     ],
-    desc: 'Honda HR-V in white. Imported variant, all options, Islamabad registered.',
+    desc: 'Honda HR-V in white. Imported variant, all options, Rawalpindi registered.',
   },
   {
     id: 9, make: 'Toyota', model: 'Yaris', year: 2023, km: 8000,
