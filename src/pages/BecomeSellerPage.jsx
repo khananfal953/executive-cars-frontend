@@ -61,7 +61,9 @@ export default function BecomeSellerPage() {
       setSubmitting(true)
       await api.post('/bookings', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       setShowOTP(false)
-      navigate('/')
+      navigate('/booking-confirmed', {
+        state: { date: form.date, branch: form.branch, email: form.email },
+      })
     } catch (err) {
       setOtpError(err.response?.data?.message || 'Invalid or expired OTP.')
     }
@@ -220,6 +222,12 @@ export default function BecomeSellerPage() {
                 {step === 2 && (
                   <>
                     <h3 className="text-gray-900 font-bold text-xl mb-5">Vehicle Details</h3>
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3">
+                      <span className="text-gray-600 text-sm">Not sure what your car is worth?</span>
+                      <Link to="/price-predictor" className="text-blue-600 text-sm font-semibold hover:underline shrink-0">
+                        Try Price Predictor →
+                      </Link>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       {[
                         { label: 'Car Make', key: 'make', placeholder: 'Toyota' },
