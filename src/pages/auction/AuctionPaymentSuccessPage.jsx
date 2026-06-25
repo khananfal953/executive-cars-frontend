@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CheckCircle, Sparkles } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext.jsx'
+import api from '../../api/api.js'
 
 function Confetti() {
   const pieces = Array.from({ length: 50 }, (_, i) => ({
@@ -23,7 +25,20 @@ function Confetti() {
 
 export default function AuctionPaymentSuccessPage() {
   const [show, setShow] = useState(false)
-  useEffect(() => { setTimeout(() => setShow(true), 100) }, [])
+  const [searchParams] = useSearchParams()
+  const { updateUser } = useAuth()
+
+  useEffect(() => {
+    setTimeout(() => setShow(true), 100)
+    const sessionId = searchParams.get('session_id')
+    if (sessionId) {
+      api.get(`/payments/verify-session?session_id=${sessionId}`)
+        .then(({ data }) => {
+          updateUser({ subscriptionStatus: data.subscriptionStatus, subscriptionExpiry: data.subscriptionExpiry })
+        })
+        .catch(() => {})
+    }
+  }, [])
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 relative overflow-hidden">
       <Confetti />
