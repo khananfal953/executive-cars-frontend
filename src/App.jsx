@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage.jsx'
 import BecomeSellerPage from './pages/BecomeSellerPage.jsx'
 import UsedCarsPage from './pages/UsedCarsPage.jsx'
 import PricePredictorPage from './pages/PricePredictorPage.jsx'
+import BookingConfirmedPage from './pages/BookingConfirmedPage.jsx'
 
 // Auction Pages
 import AuctionGatePage from './pages/auction/AuctionGatePage.jsx'
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/used-cars" element={<UsedCarsPage />} />
           <Route path="/used-cars/:id" element={<UsedCarDetailPage />} />
           <Route path="/price-predictor" element={<PricePredictorPage />} />
+          <Route path="/booking-confirmed" element={<BookingConfirmedPage />} />
 
           {/* Auction */}
           <Route path="/auction" element={<AuctionGatePage />} />
