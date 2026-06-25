@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext.jsx'
 import LoginHintBanner from './components/LoginHintBanner.jsx'
+import AIAssistantWidget from './components/AIAssistantWidget.jsx'
 
 // Public Pages
 import HomePage from './pages/HomePage.jsx'
@@ -56,6 +57,12 @@ function BannerWrapper() {
   return hide ? null : <LoginHintBanner />
 }
 
+function AIWidgetWrapper() {
+  const location = useLocation()
+  const hide = PORTAL_PATHS.some(p => location.pathname.startsWith(p))
+  return hide ? null : <AIAssistantWidget />
+}
+
 function AdminGate() {
   const { user } = useAuth()
   if (user?.role === 'admin') return <Navigate to="/admin/dashboard" replace />
@@ -67,6 +74,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <BannerWrapper />
+        <AIWidgetWrapper />
         <Routes>
           {/* Public */}
           <Route path="/" element={<HomePage />} />
