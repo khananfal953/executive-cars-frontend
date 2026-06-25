@@ -24,9 +24,6 @@ function Confetti() {
 export default function AuctionPaymentSuccessPage() {
   const [show, setShow] = useState(false)
   useEffect(() => { setTimeout(() => setShow(true), 100) }, [])
-  const memberId = 'EC-' + Math.random().toString(36).substr(2, 8).toUpperCase()
-  const expiry = new Date(); expiry.setFullYear(expiry.getFullYear() + 1)
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 relative overflow-hidden">
       <Confetti />
@@ -56,16 +53,6 @@ export default function AuctionPaymentSuccessPage() {
 
         <h1 className="text-3xl font-black text-gray-900 mb-2">Welcome to Executive Cars!</h1>
         <p className="text-gray-500 mb-6">Your membership is now active. Start bidding on exclusive cars.</p>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-6">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="text-blue-600 font-bold text-sm uppercase tracking-wider">Executive Member</span>
-          </div>
-          <div className="text-gray-900 font-black text-lg mb-1 font-mono">{memberId}</div>
-          <div className="text-gray-500 text-sm">
-            Valid until: {expiry.toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
-        </div>
 
         <div className="flex flex-col gap-3">
           <Link to="/auction/dashboard" className="btn-primary py-3.5 rounded-xl font-semibold text-sm shadow-md shadow-blue-200">
