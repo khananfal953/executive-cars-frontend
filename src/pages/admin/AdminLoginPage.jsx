@@ -135,7 +135,7 @@ export default function AdminLoginPage() {
 
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
             <p className="text-gray-500 text-sm">Are you a seller?{' '}
-              <Link to="/seller/login" className="text-blue-600 font-medium hover:underline">Seller Login →</Link>
+              <Link to="/login" className="text-blue-600 font-medium hover:underline">Seller Login →</Link>
             </p>
           </div>
         </div>

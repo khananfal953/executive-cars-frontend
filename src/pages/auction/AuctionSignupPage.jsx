@@ -152,7 +152,7 @@ export default function AuctionSignupPage() {
 
           <p className="text-center text-gray-500 text-sm mt-6">
             Already a member?{' '}
-            <Link to="/auction/login" className="text-blue-600 font-medium hover:underline">Login here</Link>
+            <Link to="/login" className="text-blue-600 font-medium hover:underline">Login here</Link>
           </p>
         </div>
       </div>

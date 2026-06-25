@@ -30,7 +30,6 @@ export default function Footer() {
                 { label: 'Home', to: '/' },
                 { label: 'Used Cars', to: '/used-cars' },
                 { label: 'Price Predictor', to: '/price-predictor' },
-                { label: 'AI Assistant', to: '/ai-assistant' },
                 { label: 'Auction Platform', to: '/auction' },
                 { label: 'Sell Your Car', to: '/become-a-seller' },
               ].map((link) => (

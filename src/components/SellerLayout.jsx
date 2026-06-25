@@ -18,7 +18,7 @@ export default function SellerLayout({ children, title }) {
   const { user, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const handleLogout = () => { logout(); navigate('/seller/login') }
+  const handleLogout = () => { logout(); navigate('/login') }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
