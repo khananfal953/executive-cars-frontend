@@ -1,14 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { LogIn, Crown, CheckCircle, Gavel, Shield, Star, Users } from 'lucide-react'
+import { LogIn, Crown, CheckCircle, Gavel, Shield, Star } from 'lucide-react'
 import Navbar from '../../components/Navbar.jsx'
 import Footer from '../../components/Footer.jsx'
 
-const TEST_ACCOUNTS = [
-  { name: 'Ahmed Raza',      email: 'buyer@executivecars.pk', password: 'buyer123' },
-  { name: 'Hasnain',         email: 'hasnain@test.com',       password: 'test123'  },
-  { name: 'Anfal Ahmad',     email: 'anfal@test.com',         password: 'test123'  },
-]
 
 export default function AuctionGatePage() {
   return (
@@ -49,7 +44,7 @@ export default function AuctionGatePage() {
               <p className="text-gray-500 text-sm mb-6 text-center">
                 Welcome back. Login to access live auctions and place your bids.
               </p>
-              <Link to="/auction/login"
+              <Link to="/login"
                 className="btn-primary w-full py-3 rounded-xl font-semibold text-sm block text-center shadow-md shadow-blue-200">
                 Login to Auction
               </Link>
@@ -76,34 +71,6 @@ export default function AuctionGatePage() {
             </div>
           </div>
 
-          {/* Test Accounts */}
-          {import.meta.env.DEV && (
-            <div className="bg-white border border-blue-200 rounded-2xl p-6 shadow-sm mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="w-5 h-5 text-blue-600" />
-                <h3 className="text-gray-900 font-bold">Test Accounts — Click Any to Login</h3>
-                <span className="badge-blue text-xs px-2 py-0.5 rounded-full font-semibold ml-auto">Demo</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {TEST_ACCOUNTS.map(acc => (
-                  <Link key={acc.email} to="/auction/login"
-                    className="flex flex-col bg-blue-50 border border-blue-200 rounded-xl p-4 hover:bg-blue-100 hover:border-blue-400 transition-all group">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                        {acc.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </div>
-                      <span className="text-gray-900 font-semibold text-sm">{acc.name}</span>
-                    </div>
-                    <p className="text-gray-500 text-xs font-mono">{acc.email}</p>
-                    <p className="text-gray-400 text-xs font-mono">Pass: {acc.password}</p>
-                    <span className="text-blue-600 text-xs font-semibold mt-2 group-hover:underline">
-                      Click to use →
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Trust badges */}
           <div className="flex items-center justify-center gap-8 flex-wrap">
