@@ -2,9 +2,9 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const LOGIN_PATHS = {
-  buyer:  '/auction/login',
-  admin:  '/admin',
-  seller: '/seller/login',
+  buyer:  '/login',
+  admin:  '/admin/login',
+  seller: '/login',
 }
 
 export default function ProtectedRoute({ role, children }) {

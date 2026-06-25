@@ -1,21 +1,20 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext.jsx'
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext.jsx'
 import LoginHintBanner from './components/LoginHintBanner.jsx'
 
 // Public Pages
 import HomePage from './pages/HomePage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
 import BecomeSellerPage from './pages/BecomeSellerPage.jsx'
 import UsedCarsPage from './pages/UsedCarsPage.jsx'
 import PricePredictorPage from './pages/PricePredictorPage.jsx'
-import AIAssistantPage from './pages/AIAssistantPage.jsx'
 
 // Auction Pages
 import AuctionGatePage from './pages/auction/AuctionGatePage.jsx'
 import AuctionSignupPage from './pages/auction/AuctionSignupPage.jsx'
 import AuctionPaymentPage from './pages/auction/AuctionPaymentPage.jsx'
 import AuctionPaymentSuccessPage from './pages/auction/AuctionPaymentSuccessPage.jsx'
-import AuctionLoginPage from './pages/auction/AuctionLoginPage.jsx'
 import AuctionDashboardPage from './pages/auction/AuctionDashboardPage.jsx'
 import AuctionLiveAuctionsPage from './pages/auction/AuctionLiveAuctionsPage.jsx'
 import AuctionMyBidsPage from './pages/auction/AuctionMyBidsPage.jsx'
@@ -34,7 +33,6 @@ import AdminUploadAuctionPage from './pages/admin/AdminUploadAuctionPage.jsx'
 import AdminUploadUsedCarPage from './pages/admin/AdminUploadUsedCarPage.jsx'
 
 // Seller Pages
-import SellerLoginPage from './pages/seller/SellerLoginPage.jsx'
 import SellerDashboardPage from './pages/seller/SellerDashboardPage.jsx'
 import SellerBookingsPage from './pages/seller/SellerBookingsPage.jsx'
 import SellerListingsPage from './pages/seller/SellerListingsPage.jsx'
@@ -43,18 +41,24 @@ import SellerProfilePage from './pages/seller/SellerProfilePage.jsx'
 
 import UsedCarDetailPage from './pages/UsedCarDetailPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
-
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+
+const PORTAL_PATHS = [
+  '/auction/dashboard', '/auction/live', '/auction/my-bids',
+  '/auction/won-cars', '/auction/profile', '/auction/car',
+  '/admin/', '/seller/',
+]
 
 function BannerWrapper() {
   const location = useLocation()
-  const hidePaths = [
-    '/auction/dashboard', '/auction/live', '/auction/my-bids',
-    '/auction/won-cars', '/auction/profile', '/auction/car',
-    '/admin/', '/seller/',
-  ]
-  const hide = hidePaths.some(p => location.pathname.startsWith(p))
+  const hide = PORTAL_PATHS.some(p => location.pathname.startsWith(p))
   return hide ? null : <LoginHintBanner />
+}
+
+function AdminGate() {
+  const { user } = useAuth()
+  if (user?.role === 'admin') return <Navigate to="/admin/dashboard" replace />
+  return <Navigate to="/admin/login" replace />
 }
 
 export default function App() {
@@ -65,18 +69,17 @@ export default function App() {
         <Routes>
           {/* Public */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/become-a-seller" element={<BecomeSellerPage />} />
           <Route path="/used-cars" element={<UsedCarsPage />} />
           <Route path="/used-cars/:id" element={<UsedCarDetailPage />} />
           <Route path="/price-predictor" element={<PricePredictorPage />} />
-          <Route path="/ai-assistant" element={<AIAssistantPage />} />
 
           {/* Auction */}
           <Route path="/auction" element={<AuctionGatePage />} />
           <Route path="/auction/signup" element={<AuctionSignupPage />} />
           <Route path="/auction/payment" element={<AuctionPaymentPage />} />
           <Route path="/auction/payment-success" element={<AuctionPaymentSuccessPage />} />
-          <Route path="/auction/login" element={<AuctionLoginPage />} />
           <Route path="/auction/dashboard" element={<ProtectedRoute role="buyer"><AuctionDashboardPage /></ProtectedRoute>} />
           <Route path="/auction/live"      element={<ProtectedRoute role="buyer"><AuctionLiveAuctionsPage /></ProtectedRoute>} />
           <Route path="/auction/my-bids"   element={<ProtectedRoute role="buyer"><AuctionMyBidsPage /></ProtectedRoute>} />
@@ -85,7 +88,8 @@ export default function App() {
           <Route path="/auction/car/:id"   element={<ProtectedRoute role="buyer"><AuctionCarDetailPage /></ProtectedRoute>} />
 
           {/* Admin */}
-          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminGate />} />
+          <Route path="/admin/login"           element={<AdminLoginPage />} />
           <Route path="/admin/dashboard"       element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="/admin/users"           element={<ProtectedRoute role="admin"><AdminUsersPage /></ProtectedRoute>} />
           <Route path="/admin/bookings"        element={<ProtectedRoute role="admin"><AdminBookingsPage /></ProtectedRoute>} />
@@ -95,12 +99,11 @@ export default function App() {
           <Route path="/admin/upload-used-car" element={<ProtectedRoute role="admin"><AdminUploadUsedCarPage /></ProtectedRoute>} />
 
           {/* Seller */}
-          <Route path="/seller/login" element={<SellerLoginPage />} />
-          <Route path="/seller/dashboard"     element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
-          <Route path="/seller/bookings"      element={<ProtectedRoute role="seller"><SellerBookingsPage /></ProtectedRoute>} />
-          <Route path="/seller/listings"      element={<ProtectedRoute role="seller"><SellerListingsPage /></ProtectedRoute>} />
+          <Route path="/seller/dashboard"      element={<ProtectedRoute role="seller"><SellerDashboardPage /></ProtectedRoute>} />
+          <Route path="/seller/bookings"       element={<ProtectedRoute role="seller"><SellerBookingsPage /></ProtectedRoute>} />
+          <Route path="/seller/listings"       element={<ProtectedRoute role="seller"><SellerListingsPage /></ProtectedRoute>} />
           <Route path="/seller/auction-status" element={<ProtectedRoute role="seller"><SellerAuctionStatusPage /></ProtectedRoute>} />
-          <Route path="/seller/profile"       element={<ProtectedRoute role="seller"><SellerProfilePage /></ProtectedRoute>} />
+          <Route path="/seller/profile"        element={<ProtectedRoute role="seller"><SellerProfilePage /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
