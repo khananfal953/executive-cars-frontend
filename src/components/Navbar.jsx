@@ -19,11 +19,9 @@ export default function Navbar() {
   }, [location])
 
   const navLinks = [
-    { label: 'Home', to: '/' },
+    { label: 'Home',      to: '/' },
     { label: 'Used Cars', to: '/used-cars' },
-    { label: 'Price Predictor', to: '/price-predictor' },
-    { label: 'AI Assistant', to: '/ai-assistant' },
-    { label: 'Auction', to: '/auction' },
+    { label: 'Auction',   to: '/auction' },
   ]
 
   const isActive = (to) => location.pathname === to
@@ -53,11 +51,8 @@ export default function Navbar() {
             </div>
 
             <div className="hidden lg:flex items-center gap-3">
-              <Link to="/seller/login" className="text-gray-600 text-sm font-medium hover:text-blue-600 transition-colors">
-                Seller Login
-              </Link>
-              <Link to="/admin" className="text-gray-600 text-sm font-medium hover:text-blue-600 transition-colors">
-                Admin
+              <Link to="/login" className="text-gray-600 text-sm font-medium hover:text-blue-600 transition-colors">
+                Login
               </Link>
               <Link to="/become-a-seller" className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold">
                 Sell Your Car
@@ -90,7 +85,10 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+              <Link to="/login" className="block w-full py-3 rounded-lg text-sm font-semibold text-center text-gray-700 hover:bg-gray-50 transition-colors">
+                Login
+              </Link>
               <Link to="/become-a-seller" className="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-center block">
                 Sell Your Car
               </Link>
