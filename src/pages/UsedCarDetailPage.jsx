@@ -134,7 +134,14 @@ export default function UsedCarDetailPage() {
                   <CheckCircle className="w-3 h-3" /> Executive Inspected
                 </span>
                 <div className="text-3xl font-black primary-text mb-1">PKR {formatPKR(car.price)}</div>
-                <p className="text-gray-400 text-xs mb-5">Fixed price listing</p>
+                <p className="text-gray-400 text-xs mb-4">Fixed price listing</p>
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3">
+                  <span className="text-gray-600 text-sm">Wondering if this is a fair price?</span>
+                  <Link to="/price-predictor" className="text-blue-600 text-sm font-semibold hover:underline shrink-0">
+                    Check Price Predictor →
+                  </Link>
+                </div>
 
                 <div className="space-y-3">
                   <Link to="/become-a-seller" className="btn-primary w-full py-3 rounded-xl font-semibold text-center block">
