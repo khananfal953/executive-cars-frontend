@@ -52,11 +52,10 @@ const trustPoints = [
   { icon: CheckCircle, title: 'Verified Listings', desc: 'All vehicles pass a professional multi-point inspection before being listed.' },
 ]
 
-const CAR_IMAGES = [
-  { make: 'Toyota', model: 'Corolla', year: 2022, price: '38 Lac', img: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&q=80' },
-  { make: 'Honda', model: 'Civic', year: 2021, price: '42 Lac', img: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400&q=80' },
-  { make: 'Kia', model: 'Sportage', year: 2022, price: '65 Lac', img: 'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=400&q=80' },
-  { make: 'Suzuki', model: 'Cultus', year: 2023, price: '21 Lac', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&q=80' },
+const heroHighlights = [
+  { icon: Shield, title: 'Inspected & Verified', desc: 'Multi-point professional inspection on every listing' },
+  { icon: TrendingUp, title: 'AI-Backed Pricing', desc: 'Fair market value from real 2025 sales data' },
+  { icon: Gavel, title: 'Live Bidding', desc: 'Transparent real-time auctions, no hidden fees' },
 ]
 
 export default function HomePage() {
@@ -110,27 +109,25 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: car grid */}
+            {/* Right: feature highlights */}
             <div className={`transition-all duration-700 delay-200 ${heroInView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
-              <div className="grid grid-cols-2 gap-3">
-                {CAR_IMAGES.map((car, i) => (
-                  <div key={i} className="relative rounded-2xl overflow-hidden group cursor-pointer">
-                    <img src={car.img} alt={`${car.make} ${car.model}`} className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <p className="text-white font-bold text-sm">{car.make} {car.model}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-300 text-xs">{car.year}</span>
-                        <span className="text-blue-300 font-bold text-xs">PKR {car.price}</span>
-                      </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm space-y-5">
+                {heroHighlights.map((h) => (
+                  <div key={h.title} className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-blue-500/15 border border-blue-400/30 flex items-center justify-center shrink-0">
+                      <h.icon className="w-5 h-5 text-blue-300" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">{h.title}</p>
+                      <p className="text-slate-400 text-xs mt-0.5">{h.desc}</p>
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="mt-3 text-center">
-                <Link to="/used-cars" className="text-blue-400 text-sm hover:text-blue-300 transition-colors">
-                  View all listings →
-                </Link>
+                <div className="pt-4 border-t border-white/10 text-center">
+                  <Link to="/used-cars" className="text-blue-400 text-sm hover:text-blue-300 transition-colors">
+                    View all listings →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
