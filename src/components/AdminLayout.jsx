@@ -6,7 +6,7 @@ import Logo from './Logo.jsx'
 
 const navItems = [
   { icon: BarChart3, label: 'Dashboard', to: '/admin/dashboard' },
-  { icon: Users, label: 'Members', to: '/admin/users' },
+  { icon: Users, label: 'Customer Accounts', to: '/admin/users' },
   { icon: Calendar, label: 'Bookings', to: '/admin/bookings' },
   { icon: Gavel, label: 'Auction List', to: '/admin/auction-list' },
   { icon: List, label: 'Used Cars List', to: '/admin/used-cars-list' },
@@ -39,7 +39,7 @@ export default function AdminLayout({ children, title }) {
           {navItems.map(item => (
             <Link key={item.to} to={item.to} onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                location.pathname === item.to ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                location.pathname === item.to ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-transparent'
               }`}>
               <item.icon className="w-4 h-4 shrink-0" />{item.label}
             </Link>

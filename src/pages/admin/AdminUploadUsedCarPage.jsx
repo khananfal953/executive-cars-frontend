@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload, X, FileText, CheckCircle, Car, ChevronDown } from 'lucide-react'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import AdminOwnerSelect, { useAdminOwners } from '../../components/AdminOwnerSelect.jsx'
 import { BRANDS, MODELS } from '../../data/carBrands.js'
 import api from '../../api/api.js'
 const colors = ['White', 'Black', 'Silver', 'Grey', 'Red', 'Blue', 'Brown', 'Green', 'Orange']
@@ -11,7 +12,7 @@ export default function AdminUploadUsedCarPage() {
   const [form, setForm] = useState({
     make: '', model: '', year: '', mileage: '', engine: '',
     transmission: 'Auto', fuel: 'Petrol', color: '',
-    price: '', condition: 'Excellent', notes: '',
+    price: '', condition: 'Excellent', notes: '', ownerId: '',
   })
   const [images, setImages] = useState([])
   const [report, setReport] = useState(null)
@@ -19,6 +20,7 @@ export default function AdminUploadUsedCarPage() {
   const [saved, setSaved] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const [errors, setErrors] = useState({})
+  const { owners, loadingOwners } = useAdminOwners()
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -62,11 +64,12 @@ export default function AdminUploadUsedCarPage() {
       fd.append('color', form.color)
       fd.append('price', form.price)
       fd.append('description', form.notes)
+      fd.append('ownerId', form.ownerId)
       images.forEach(img => fd.append('images', img))
       if (report) fd.append('report', report)
-      await api.post('/admin/products', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      await api.post('/admin/products', fd)
       setSaved(true)
-      setForm({ make: '', model: '', year: '', mileage: '', engine: '', transmission: 'Auto', fuel: 'Petrol', color: '', price: '', condition: 'Excellent', notes: '' })
+      setForm({ make: '', model: '', year: '', mileage: '', engine: '', transmission: 'Auto', fuel: 'Petrol', color: '', price: '', condition: 'Excellent', notes: '', ownerId: '' })
       setImages([])
       setReport(null)
       setResetKey(k => k + 1)
@@ -210,6 +213,7 @@ export default function AdminUploadUsedCarPage() {
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h3 className="text-gray-900 font-bold mb-5">Pricing & Condition</h3>
               <div className="space-y-4">
+                <AdminOwnerSelect value={form.ownerId} onChange={value => update('ownerId', value)} owners={owners} loading={loadingOwners} />
                 <div>
                   <label className="block text-sm text-gray-600 font-medium mb-1.5">Selling Price (PKR)</label>
                   <input

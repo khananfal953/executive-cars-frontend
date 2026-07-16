@@ -69,7 +69,7 @@ export default function SellerDashboardPage() {
               <ClipboardCheck className="w-5 h-5 text-blue-500" />
               <h3 className="text-gray-900 font-bold">My Inspection Bookings</h3>
             </div>
-            <Link to="/become-a-seller" className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
+            <Link to="/seller/book-inspection" className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
               + New <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>
@@ -106,7 +106,7 @@ export default function SellerDashboardPage() {
             ))}
           </div>
           <div className="px-5 py-3 border-t border-gray-100">
-            <Link to="/become-a-seller" className="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-center block">
+            <Link to="/seller/book-inspection" className="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-center block">
               Book New Inspection
             </Link>
           </div>
@@ -186,7 +186,7 @@ export default function SellerDashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
         {[
-          { icon: ClipboardCheck, label: 'Book Inspection', to: '/become-a-seller', color: 'bg-blue-50 text-blue-600 border-blue-200' },
+          { icon: ClipboardCheck, label: 'Book Inspection', to: '/seller/book-inspection', color: 'bg-blue-50 text-blue-600 border-blue-200' },
           { icon: TrendingUp, label: 'Price Predictor', to: '/price-predictor', color: 'bg-green-50 text-green-600 border-green-200' },
           { icon: Gavel, label: 'View Auctions', to: '/auction', color: 'bg-purple-50 text-purple-600 border-purple-200' },
           { icon: Car, label: 'Browse Used Cars', to: '/used-cars', color: 'bg-orange-50 text-orange-600 border-orange-200' },

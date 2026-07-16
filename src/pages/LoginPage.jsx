@@ -1,150 +1,66 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Lock, LogIn, Shield, Car, Gavel } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Car, CheckCircle2, Eye, EyeOff, Gavel, Lock, Search, UserRound } from 'lucide-react'
 import Logo from '../components/Logo.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
-const ROLES = [
-  { key: 'buyer',  label: 'Member',  icon: Gavel,  description: 'Bid on live auctions' },
-  { key: 'seller', label: 'Seller',  icon: Car,    description: 'Track your listings' },
-  { key: 'admin',  label: 'Admin',   icon: Shield, description: 'Manage the platform' },
-]
-
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login, loginSeller, loginAuction } = useAuth()
-  const [role, setRole] = useState('buyer')
+  const location = useLocation()
+  const { loginAccount } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true); setError(false)
-
-    let result
-    if (role === 'admin') result = await login(form.email, form.password)
-    else if (role === 'seller') result = await loginSeller(form.email, form.password)
-    else result = await loginAuction(form.email, form.password)
-
-    if (result.success) {
-      if (role === 'admin') navigate('/admin/dashboard')
-      else if (role === 'seller') navigate('/seller/dashboard')
-      else navigate('/auction/dashboard')
-    } else {
-      setError(true)
-    }
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setLoading(true); setError('')
+    const result = await loginAccount(form.email, form.password)
+    if (result.success) navigate(location.state?.from || '/account', { replace: true })
+    else setError(result.message || 'Invalid credentials. Please try again.')
     setLoading(false)
   }
 
-  const activeRole = ROLES.find(r => r.key === role)
-
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Left */}
-      <div className="hidden lg:flex flex-col w-3/5 bg-[#0f172a] relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-blue-400/8 rounded-full blur-3xl" />
-        </div>
-        <div className="relative z-10 flex flex-col justify-center h-full px-16">
-          <Link to="/" className="flex items-center gap-3 mb-16">
-            <Logo className="w-10 h-10" />
-            <div>
-              <span className="text-white font-black text-xl block leading-none">Executive Cars</span>
-              <span className="text-blue-400 text-xs font-medium">Sign In</span>
-            </div>
-          </Link>
-
-          <activeRole.icon className="w-14 h-14 text-blue-400 mb-6" />
-          <h2 className="text-4xl font-black text-white mb-3 leading-tight">
-            Welcome Back<br /><span className="animated-gradient-text">{activeRole.label}</span>
-          </h2>
-          <p className="text-slate-400 text-base mb-10">{activeRole.description}</p>
-
-          <div className="space-y-3">
-            {ROLES.map(r => (
-              <div key={r.key} className={`flex items-center gap-3 rounded-xl px-4 py-3 border transition-all ${
-                role === r.key ? 'bg-blue-600/15 border-blue-500/30' : 'bg-white/5 border-white/10'
-              }`}>
-                <r.icon className={`w-4 h-4 ${role === r.key ? 'text-blue-400' : 'text-slate-500'}`} />
-                <span className={`text-sm ${role === r.key ? 'text-blue-300 font-medium' : 'text-slate-400'}`}>{r.label} — {r.description}</span>
-              </div>
-            ))}
+    <div className="min-h-screen bg-gray-50 grid lg:grid-cols-[1.1fr_.9fr]">
+      <section className="hidden lg:flex flex-col justify-center bg-[#0f172a] relative overflow-hidden px-16">
+        <div className="absolute inset-0 surface-grid opacity-30" /><div className="absolute right-0 top-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl" />
+        <div className="relative max-w-xl">
+          <Link to="/" className="inline-flex items-center gap-3 mb-14"><Logo className="w-11 h-11" /><div><span className="text-white font-black text-xl block leading-none">Executive Cars</span><span className="text-blue-400 text-xs font-semibold">One account for everything</span></div></Link>
+          <h1 className="text-4xl xl:text-5xl font-black text-white leading-tight">Buy, sell, and bid with one account</h1>
+          <p className="text-slate-400 leading-7 mt-4">Your profile, selling activity, saved marketplace journey, and auction membership all stay under one customer identity.</p>
+          <div className="grid grid-cols-3 gap-3 mt-9">
+            {[
+              { icon: Search, label: 'Browse cars' },
+              { icon: Car, label: 'Sell a car' },
+              { icon: Gavel, label: 'Join auctions' },
+            ].map(({ icon: Icon, label }) => <div key={label} className="bg-white/[0.06] border border-white/10 rounded-xl p-4"><Icon className="w-5 h-5 text-blue-400" /><p className="text-sm font-semibold text-white mt-3">{label}</p></div>)}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Right */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-              <LogIn className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-black text-gray-900">Sign In</h2>
-            <p className="text-gray-500 text-sm mt-1">Choose your account type and sign in</p>
-          </div>
+      <main className="flex items-center justify-center bg-white p-6 sm:p-10">
+        <div className="w-full max-w-md">
+          <Link to="/" className="lg:hidden inline-flex items-center gap-2.5 mb-10"><Logo className="w-10 h-10" /><span className="font-black text-gray-900">Executive <span className="text-blue-600">Cars</span></span></Link>
+          <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><UserRound className="w-6 h-6 text-blue-600" /></div>
+          <h2 className="text-3xl font-black text-gray-900 mt-5">Sign in to your account</h2>
+          <p className="text-sm text-gray-500 mt-2">The same login works for buying, selling, and auction membership.</p>
 
-          {/* Role tabs */}
-          <div className="grid grid-cols-3 gap-2 mb-6">
-            {ROLES.map(r => (
-              <button key={r.key} type="button" onClick={() => { setRole(r.key); setError(false) }}
-                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl text-xs font-semibold transition-all border ${
-                  role === r.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-blue-300'
-                }`}>
-                <r.icon className="w-4 h-4" />
-                {r.label}
-              </button>
-            ))}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
-              <input type="email" value={form.email} onChange={e => update('email', e.target.value)} required
-                className={`input-light ${error ? 'border-red-400' : ''}`} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-              <div className="relative">
-                <input type={showPass ? 'text' : 'password'} value={form.password} onChange={e => update('password', e.target.value)} required
-                  className={`input-light pr-10 ${error ? 'border-red-400' : ''}`} />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-sm text-center">
-                Invalid credentials. Please try again.
-              </div>
-            )}
-
-            <button type="submit" disabled={loading}
-              className="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 mt-2 shadow-md shadow-blue-200">
-              {loading
-                ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                : <><Lock className="w-4 h-4" /> Sign In as {activeRole.label}</>
-              }
-            </button>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-8">
+            <label className="block"><span className="block text-sm font-semibold text-gray-700 mb-1.5">Email address</span><input type="email" value={form.email} onChange={event => setForm(current => ({ ...current, email: event.target.value }))} required autoComplete="email" className={`input-light ${error ? 'border-red-400' : ''}`} /></label>
+            <label className="block"><span className="block text-sm font-semibold text-gray-700 mb-1.5">Password</span><span className="relative block"><input type={showPass ? 'text' : 'password'} value={form.password} onChange={event => setForm(current => ({ ...current, password: event.target.value }))} required autoComplete="current-password" className={`input-light pr-11 ${error ? 'border-red-400' : ''}`} /><button type="button" onClick={() => setShowPass(value => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label={showPass ? 'Hide password' : 'Show password'}>{showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></span></label>
+            {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-600 text-sm">{error}</div>}
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-sm gap-2 disabled:opacity-60">{loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}{loading ? 'Signing in…' : 'Sign In'}</button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-200 text-center space-y-2">
-            <p className="text-gray-500 text-sm">
-              New here?{' '}
-              <Link to="/auction/signup" className="text-blue-600 font-medium hover:underline">Become a Member →</Link>
-            </p>
-            <p className="text-gray-500 text-sm">
-              Want to sell your car?{' '}
-              <Link to="/become-a-seller" className="text-blue-600 font-medium hover:underline">Book an Inspection →</Link>
-            </p>
+          <div className="mt-7 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-500 text-center">New to Executive Cars? <Link to="/signup" className="font-bold text-blue-600 hover:underline">Create one account</Link></p>
+            <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400"><CheckCircle2 className="w-4 h-4 text-green-600" /> No separate buyer or seller registration</div>
+            <p className="text-xs text-gray-400 text-center mt-5">Administrator? <Link to="/admin/login" className="text-blue-600 hover:underline">Use secure admin login</Link></p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

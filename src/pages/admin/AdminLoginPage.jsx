@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 
 export default function AdminLoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { loginAdmin } = useAuth()
   const [form, setForm] = useState({ email: import.meta.env.DEV ? 'admin@executivecars.pk' : '', password: import.meta.env.DEV ? 'admin123' : '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true); setError(false)
-    const result = await login(form.email, form.password)
+    const result = await loginAdmin(form.email, form.password)
     if (result.success && result.role === 'admin') {
       navigate('/admin/dashboard')
     } else {

@@ -44,12 +44,12 @@ export default function AdminUsersPage() {
   const totalPages = Math.ceil(total / PER_PAGE)
 
   return (
-    <AdminLayout title="Members">
+    <AdminLayout title="Customer Accounts">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Members', value: total,  color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Active',  value: members.filter(m => m.subscriptionStatus === 'active').length,  color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Inactive', value: members.filter(m => m.subscriptionStatus !== 'active').length, color: 'text-red-600', bg: 'bg-red-50' },
+          { label: 'Total Accounts', value: total,  color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Auction Active',  value: members.filter(m => m.subscriptionStatus === 'active').length,  color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Auction Inactive', value: members.filter(m => m.subscriptionStatus !== 'active').length, color: 'text-red-600', bg: 'bg-red-50' },
           { label: 'This Page', value: members.length, color: 'text-purple-600', bg: 'bg-purple-50' },
         ].map(s => (
           <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -78,13 +78,13 @@ export default function AdminUsersPage() {
 
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
-          <div className="text-center py-16 text-gray-400">Loading members...</div>
+          <div className="text-center py-16 text-gray-400">Loading accounts...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  {['Member', 'Phone', 'Subscription', 'Joined', 'Action'].map(h => (
+                  {['Account', 'Phone', 'Auction Access', 'Joined', 'Action'].map(h => (
                     <th key={h} className="text-left px-5 py-3.5 text-gray-500 text-xs font-semibold uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>

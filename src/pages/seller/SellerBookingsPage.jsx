@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { CheckCircle, Clock, XCircle } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { CheckCircle, Clock, PlusCircle, XCircle } from 'lucide-react'
 import SellerLayout from '../../components/SellerLayout.jsx'
 import api from '../../api/api.js'
 
@@ -10,6 +11,7 @@ const statusConfig = {
 }
 
 export default function SellerBookingsPage() {
+  const location = useLocation()
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -22,10 +24,24 @@ export default function SellerBookingsPage() {
 
   return (
     <SellerLayout title="My Bookings">
+      {location.state?.bookingCreated && (
+        <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-2xl flex items-start gap-3 shadow-sm">
+          <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-sm">Inspection booking submitted successfully.</p>
+            <p className="text-xs text-green-600 mt-1">{location.state.date} · {location.state.branch}. You can track its approval status here.</p>
+          </div>
+        </div>
+      )}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-gray-200">
-          <h2 className="text-gray-900 font-bold text-lg">Inspection Bookings</h2>
-          <p className="text-gray-500 text-sm mt-0.5">Track your vehicle inspection requests.</p>
+        <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-gray-900 font-bold text-lg">Inspection Bookings</h2>
+            <p className="text-gray-500 text-sm mt-0.5">Track your vehicle inspection requests.</p>
+          </div>
+          <Link to="/seller/book-inspection" className="btn-primary px-4 py-2.5 text-sm gap-2 shrink-0">
+            <PlusCircle className="w-4 h-4" /> Book Inspection
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

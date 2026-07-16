@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom'
 import { LogIn, Crown, CheckCircle, Gavel, Shield, Star } from 'lucide-react'
 import Navbar from '../../components/Navbar.jsx'
 import Footer from '../../components/Footer.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 
 export default function AuctionGatePage() {
+  const { user } = useAuth()
+  const active = user?.role === 'user' && user.subscriptionStatus === 'active'
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-[#0f172a] pt-24 pb-20 relative overflow-hidden">
+      <section className="bg-[#0f172a] pt-28 md:pt-32 pb-20 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl" />
@@ -40,13 +43,13 @@ export default function AuctionGatePage() {
               <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
                 <LogIn className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-gray-900 font-bold text-xl mb-2 text-center">Already A Member</h3>
+              <h3 className="text-gray-900 font-bold text-xl mb-2 text-center">Use Your Account</h3>
               <p className="text-gray-500 text-sm mb-6 text-center">
-                Welcome back. Login to access live auctions and place your bids.
+                One Executive Cars login works for buying, selling, and auction membership.
               </p>
-              <Link to="/login"
-                className="btn-primary w-full py-3 rounded-xl font-semibold text-sm block text-center shadow-md shadow-blue-200">
-                Login to Auction
+              <Link to={user?.role === 'user' ? '/account' : '/login'}
+                className="btn-brand w-full py-3 rounded-xl font-semibold text-sm block text-center">
+                {user?.role === 'user' ? 'Open My Account' : 'Sign In'}
               </Link>
             </div>
 
@@ -56,7 +59,7 @@ export default function AuctionGatePage() {
               <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
                 <Crown className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-gray-900 font-bold text-xl mb-2 text-center">Become A Member</h3>
+              <h3 className="text-gray-900 font-bold text-xl mb-2 text-center">Activate Auction Access</h3>
               <ul className="space-y-2 mb-6">
                 {['Real-Time Bidding', 'Inspection Reports', 'Exclusive Listings', 'Priority Access'].map(perk => (
                   <li key={perk} className="flex items-center gap-2 text-sm text-gray-600">
@@ -64,9 +67,9 @@ export default function AuctionGatePage() {
                   </li>
                 ))}
               </ul>
-              <Link to="/auction/signup"
+              <Link to={active ? '/auction/dashboard' : user?.role === 'user' ? '/auction/payment' : '/auction/signup'}
                 className="btn-primary w-full py-3 rounded-xl font-semibold text-sm block text-center shadow-md shadow-blue-200">
-                Sign Up — PKR 4,999/yr
+                {active ? 'Open Auction Dashboard' : 'Activate — PKR 4,999/yr'}
               </Link>
             </div>
           </div>

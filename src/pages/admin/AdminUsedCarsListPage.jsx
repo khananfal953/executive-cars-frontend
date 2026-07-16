@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Search, Plus, Pencil, Trash2, X, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import AdminOwnerSelect, { ownerValue, useAdminOwners } from '../../components/AdminOwnerSelect.jsx'
 import { formatPKR } from '../../utils/format.js'
 import api from '../../api/api.js'
 
@@ -12,6 +13,7 @@ export default function AdminUsedCarsListPage() {
   const [maxPrice, setMaxPrice] = useState(10000000)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [editTarget, setEditTarget] = useState(null)
+  const { owners, loadingOwners } = useAdminOwners()
 
   useEffect(() => {
     api.get('/admin/products')
@@ -21,7 +23,8 @@ export default function AdminUsedCarsListPage() {
   }, [])
 
   const filtered = cars.filter(c => {
-    const matchSearch = `${c.make} ${c.model}`.toLowerCase().includes(search.toLowerCase())
+    const ownerText = `${c.ownerId?.name || ''} ${c.ownerId?.email || c.sellerEmail || ''}`
+    const matchSearch = `${c.make} ${c.model} ${ownerText}`.toLowerCase().includes(search.toLowerCase())
     const matchPrice = c.price <= maxPrice
     return matchSearch && matchPrice
   })
@@ -42,6 +45,7 @@ export default function AdminUsedCarsListPage() {
         year: Number(editTarget.year),
         km: Number(editTarget.km),
         price: Number(editTarget.price),
+        ownerId: ownerValue(editTarget.ownerId),
       }
       const { data } = await api.put(`/admin/products/${editTarget._id}`, payload)
       setCars(prev => prev.map(c => c._id === editTarget._id ? data : c))
@@ -79,7 +83,7 @@ export default function AdminUsedCarsListPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  {['Car', 'Year', 'Mileage', 'Price', 'Date Listed', 'Actions'].map(h => (
+                  {['Car', 'Owner', 'Year', 'Mileage', 'Price', 'Date Listed', 'Actions'].map(h => (
                     <th key={h} className="text-left px-4 py-4 text-gray-500 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -87,7 +91,7 @@ export default function AdminUsedCarsListPage() {
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-16 text-gray-400">
+                    <td colSpan={7} className="text-center py-16 text-gray-400">
                       <Search className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>No cars found.</p>
                     </td>
                   </tr>
@@ -98,6 +102,10 @@ export default function AdminUsedCarsListPage() {
                         <div className="w-10 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-black text-sm">{c.make?.[0]}</div>
                         <span className="text-gray-900 font-medium text-sm">{c.make} {c.model}</span>
                       </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <p className="text-gray-700 text-sm font-medium">{c.ownerId?.name || 'Executive Cars'}</p>
+                      <p className="text-gray-400 text-xs">{c.ownerId?.email || c.sellerEmail || 'Showroom owned'}</p>
                     </td>
                     <td className="px-4 py-4 text-gray-500 text-sm">{c.year}</td>
                     <td className="px-4 py-4 text-gray-500 text-sm">{c.km?.toLocaleString()} km</td>
@@ -148,6 +156,12 @@ export default function AdminUsedCarsListPage() {
               <button onClick={() => setEditTarget(null)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <div className="space-y-4">
+              <AdminOwnerSelect
+                value={editTarget.ownerId}
+                onChange={value => setEditTarget(prev => ({ ...prev, ownerId: value }))}
+                owners={owners}
+                loading={loadingOwners}
+              />
               {[
                 { label: 'Make', key: 'make' },
                 { label: 'Model', key: 'model' },

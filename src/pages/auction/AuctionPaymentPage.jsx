@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { CreditCard, Lock, Shield, CheckCircle } from 'lucide-react'
 import Logo from '../../components/Logo.jsx'
 import api from '../../api/api.js'
@@ -13,10 +13,10 @@ const benefits = [
 ]
 
 export default function AuctionPaymentPage() {
-  const navigate = useNavigate()
   const [form, setForm] = useState({ name: 'Ahmed Raza', card: '4111 1111 1111 1111', expiry: '12/27', cvv: '123' })
   const [cardType, setCardType] = useState('Visa')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const formatCard = (val) => val.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
@@ -32,14 +32,14 @@ export default function AuctionPaymentPage() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setLoading(true)
+    e.preventDefault(); setLoading(true); setError('')
     try {
       const { data } = await api.post('/payments/create-checkout-session')
       // Redirect to Stripe hosted checkout
       window.location.href = data.url
-    } catch {
-      // Stripe keys not set yet — fall through to success page for demo
-      navigate('/auction/payment-success')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to start secure checkout. Please try again.')
+      setLoading(false)
     }
   }
 
@@ -105,6 +105,7 @@ export default function AuctionPaymentPage() {
             <p className="text-gray-400 text-xs mb-6">Pre-filled with test card — just click Pay</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-600">{error}</div>}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Cardholder Name</label>
                 <input type="text" value={form.name} onChange={e => update('name', e.target.value)} required className="input-light" />

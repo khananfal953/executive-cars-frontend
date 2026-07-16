@@ -21,7 +21,11 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06)',
+        elevated: '0 14px 40px rgba(15, 23, 42, 0.14)',
       },
       animation: {
         'gradient': 'gradient 6s ease infinite',

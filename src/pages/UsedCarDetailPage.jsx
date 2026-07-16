@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, Fuel, Settings, Gauge, Calendar, Mail, Shield } from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import {
+  AlertTriangle, ArrowLeft, Calendar, CheckCircle2, FileText, Fuel, Gauge, Heart,
+  Mail, MapPin, MessageSquare, Phone, Settings, Share2, ShieldCheck,
+} from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { formatPKR } from '../utils/format.js'
@@ -11,174 +14,130 @@ export default function UsedCarDetailPage() {
   const [car, setCar] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeImg, setActiveImg] = useState(0)
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
+    let active = true
+    setActiveImg(0)
     api.get(`/products/${id}`)
-      .then(res => setCar(res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      .then(response => { if (active) setCar(response.data) })
+      .catch(() => { if (active) setCar(null) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
   }, [id])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center text-gray-400">Loading...</div>
-        <Footer />
-      </div>
-    )
-  }
+  const images = useMemo(() => car?.images?.filter(Boolean) || [], [car])
 
-  if (!car) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-500 text-lg mb-4">Car not found.</p>
-            <Link to="/used-cars" className="btn-primary px-6 py-2.5 rounded-xl font-semibold">Back to Listings</Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    )
-  }
+  if (loading) return <PageState><div className="text-center"><div className="w-10 h-10 border-4 border-blue-100 border-t-blue-700 rounded-full animate-spin mx-auto" /><p className="text-sm text-gray-500 mt-4">Loading car details…</p></div></PageState>
 
-  const images = car.images?.length ? car.images : []
+  if (!car) return (
+    <PageState>
+      <div className="text-center max-w-sm"><div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto"><AlertTriangle className="w-6 h-6 text-gray-400" /></div><h1 className="text-xl font-black text-gray-900 mt-4">Car not found</h1><p className="text-sm text-gray-500 mt-2">This listing may have been removed or is no longer available.</p><Link to="/used-cars" className="btn-brand px-5 py-2.5 text-sm mt-5">Back to used cars</Link></div>
+    </PageState>
+  )
+
+  const engine = String(car.engine || '').toLowerCase().includes('cc') ? car.engine : car.engine ? `${car.engine} cc` : '—'
+  const sellerEmail = car.sellerEmail || 'info@executivecars.pk'
+  const specs = [
+    { icon: Calendar, label: 'Model year', value: car.year },
+    { icon: Gauge, label: 'Mileage', value: `${Number(car.km || 0).toLocaleString()} km` },
+    { icon: Fuel, label: 'Fuel type', value: car.fuel || '—' },
+    { icon: Settings, label: 'Transmission', value: car.transmission || '—' },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f5f7f9]">
       <Navbar />
-
-      <div className="pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/used-cars" className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-6 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Used Cars
-          </Link>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left: images + specs */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                <div className="aspect-[16/9] overflow-hidden">
-                  <img src={images[activeImg]} alt={`${car.make} ${car.model}`} loading="lazy"
-                    className="w-full h-full object-cover" />
-                </div>
-                {images.length > 1 && (
-                  <div className="flex gap-2 p-3">
-                    {images.map((img, i) => (
-                      <button key={i} onClick={() => setActiveImg(i)}
-                        className={`w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${activeImg === i ? 'border-blue-600' : 'border-transparent'}`}>
-                        <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {[
-                    { icon: Calendar,  label: 'Year',         value: car.year },
-                    { icon: Gauge,     label: 'Mileage',      value: `${car.km?.toLocaleString()} km` },
-                    { icon: Fuel,      label: 'Fuel',         value: car.fuel },
-                    { icon: Settings,  label: 'Transmission', value: car.transmission },
-                  ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="text-center">
-                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2">
-                        <Icon className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <p className="text-gray-400 text-xs">{label}</p>
-                      <p className="text-gray-900 font-semibold text-sm">{value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <h2 className="text-gray-900 font-bold text-lg mb-4">Full Specifications</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { label: 'Make',         value: car.make },
-                    { label: 'Model',        value: car.model },
-                    { label: 'Year',         value: car.year },
-                    { label: 'Engine',       value: car.engine ? `${car.engine} cc` : '—' },
-                    { label: 'Color',        value: car.color },
-                    { label: 'Fuel Type',    value: car.fuel },
-                    { label: 'Transmission', value: car.transmission },
-                    { label: 'Mileage',      value: `${car.km?.toLocaleString()} km` },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
-                      <span className="text-gray-500 text-sm">{label}</span>
-                      <span className="text-gray-900 text-sm font-medium">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {car.description && (
-                <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                  <h2 className="text-gray-900 font-bold text-lg mb-3">Description</h2>
-                  <p className="text-gray-600 text-sm leading-relaxed">{car.description}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Right: price panel + seller info */}
-            <div className="space-y-4">
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <h1 className="text-gray-900 font-black text-xl">{car.make} {car.model}</h1>
-                </div>
-                <span className="inline-flex items-center gap-1 badge-green text-xs px-3 py-1.5 rounded-full font-medium mb-4">
-                  <CheckCircle className="w-3 h-3" /> Executive Inspected
-                </span>
-                <div className="text-3xl font-black primary-text mb-1">PKR {formatPKR(car.price)}</div>
-                <p className="text-gray-400 text-xs mb-4">Fixed price listing</p>
-
-                <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3">
-                  <span className="text-gray-600 text-sm">Wondering if this is a fair price?</span>
-                  <Link to="/price-predictor" className="text-blue-600 text-sm font-semibold hover:underline shrink-0">
-                    Check Price Predictor →
-                  </Link>
-                </div>
-
-                <div className="space-y-3">
-                  <Link to="/become-a-seller" className="btn-primary w-full py-3 rounded-xl font-semibold text-center block">
-                    Book Inspection
-                  </Link>
-                  <a href={`mailto:${car.sellerEmail}`} className="btn-ghost w-full py-3 rounded-xl font-semibold text-center block">
-                    Contact Seller
-                  </a>
-                </div>
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                <h3 className="text-gray-900 font-bold mb-4">Seller Information</h3>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {(car.sellerEmail || '??').slice(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-gray-900 font-semibold text-sm break-all">{car.sellerEmail}</p>
-                    <p className="text-blue-600 text-xs">Verified Seller</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Mail className="w-4 h-4 shrink-0" /> {car.sellerEmail}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Shield className="w-4 h-4 shrink-0" /> Identity Verified
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div className="pt-[68px] md:pt-[100px]">
+        <div className="bg-white border-b border-gray-200">
+          <div className="market-shell py-4">
+            <nav className="flex items-center gap-2 text-xs text-gray-400"><Link to="/" className="hover:text-blue-700">Home</Link><span>/</span><Link to="/used-cars" className="hover:text-blue-700">Used Cars</Link><span>/</span><span className="truncate">{car.make} {car.model}</span></nav>
           </div>
         </div>
-      </div>
 
+        <main className="market-shell py-6 lg:py-8">
+          <Link to="/used-cars" className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-blue-700 mb-5"><ArrowLeft className="w-4 h-4" /> Back to listings</Link>
+
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 mb-6">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-2"><span className="inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 rounded px-2 py-1 text-[10px] font-bold"><CheckCircle2 className="w-3 h-3" /> EXECUTIVE INSPECTED</span><span className="bg-blue-50 border border-blue-100 text-blue-700 rounded px-2 py-1 text-[10px] font-bold">VERIFIED LISTING</span></div>
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-900">{car.make} {car.model} {car.year}</h1>
+              <p className="flex items-center gap-1.5 text-sm text-gray-500 mt-2"><MapPin className="w-4 h-4 text-blue-500" /> Executive Cars, Rawalpindi, Pakistan</p>
+            </div>
+            <div className="lg:text-right">
+              <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Asking price</p>
+              <p className="text-2xl sm:text-3xl font-black text-blue-600 mt-1">PKR {formatPKR(car.price)}</p>
+              <p className="text-xs text-gray-400 mt-1">Price is subject to seller confirmation</p>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
+            <div className="space-y-6 min-w-0">
+              <section className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-card">
+                <div className="relative aspect-[16/9] bg-gray-100 overflow-hidden">
+                  {images[activeImg] ? <img src={images[activeImg]} alt={`${car.make} ${car.model} view ${activeImg + 1}`} className="w-full h-full object-cover" /> : <div className="h-full flex items-center justify-center text-gray-300"><Settings className="w-14 h-14" /></div>}
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <button type="button" onClick={() => setSaved(value => !value)} className="w-10 h-10 rounded-full bg-white/95 shadow flex items-center justify-center" aria-label="Save car"><Heart className={`w-4 h-4 ${saved ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} /></button>
+                    <button type="button" className="w-10 h-10 rounded-full bg-white/95 shadow flex items-center justify-center" aria-label="Share listing"><Share2 className="w-4 h-4 text-gray-600" /></button>
+                  </div>
+                </div>
+                {images.length > 1 && <div className="flex gap-2 p-3 overflow-x-auto">{images.map((image, index) => <button type="button" key={image} onClick={() => setActiveImg(index)} className={`w-20 h-14 rounded-md overflow-hidden border-2 shrink-0 ${activeImg === index ? 'border-blue-500' : 'border-transparent opacity-70 hover:opacity-100'}`}><img src={image} alt="" className="w-full h-full object-cover" /></button>)}</div>}
+              </section>
+
+              <section className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6 shadow-card">
+                <h2 className="text-lg font-black text-gray-900 mb-5">Key details</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {specs.map(({ icon: Icon, label, value }) => <div key={label} className="rounded-lg bg-gray-50 border border-gray-100 p-4"><Icon className="w-5 h-5 text-blue-700" /><p className="text-[10px] uppercase tracking-wide font-bold text-gray-400 mt-3">{label}</p><p className="text-sm font-bold text-gray-900 mt-1">{value}</p></div>)}
+                </div>
+              </section>
+
+              <section className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6 shadow-card">
+                <div className="flex items-center justify-between gap-4 mb-5"><h2 className="text-lg font-black text-gray-900">Vehicle specifications</h2><span className="text-xs text-gray-400">Listing ID: {String(car._id || id).slice(-8)}</span></div>
+                <div className="grid sm:grid-cols-2 gap-x-8">
+                  {[
+                    ['Make', car.make], ['Model', car.model], ['Model Year', car.year], ['Engine', engine],
+                    ['Exterior Color', car.color || '—'], ['Fuel Type', car.fuel || '—'], ['Transmission', car.transmission || '—'], ['Mileage', `${Number(car.km || 0).toLocaleString()} km`],
+                  ].map(([label, value]) => <div key={label} className="flex items-center justify-between gap-4 py-3 border-b border-gray-100 text-sm"><span className="text-gray-500">{label}</span><span className="font-semibold text-gray-900 text-right">{value}</span></div>)}
+                </div>
+              </section>
+
+              <section className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6 shadow-card">
+                <h2 className="text-lg font-black text-gray-900">Seller comments</h2>
+                <p className="text-sm text-gray-600 leading-7 mt-3">{car.description || 'This inspected vehicle is available at Executive Cars. Contact our team for the latest availability, inspection details, and viewing schedule.'}</p>
+              </section>
+
+              <section className="bg-[#0f172a] text-white rounded-xl p-5 sm:p-6">
+                <div className="flex items-start gap-4"><div className="w-11 h-11 rounded-lg bg-green-500/15 border border-green-400/20 flex items-center justify-center shrink-0"><ShieldCheck className="w-5 h-5 text-green-400" /></div><div><h2 className="font-black">Buy safely with Executive Cars</h2><p className="text-sm text-blue-100/65 leading-6 mt-1">Review the inspection report, verify original documents, and complete payment only after confirming ownership.</p><div className="flex flex-wrap gap-4 mt-4 text-xs font-semibold text-blue-100/80"><span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-green-400" /> Documents checked</span><span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-green-400" /> Inspection available</span></div></div></div>
+              </section>
+            </div>
+
+            <aside className="space-y-4 lg:sticky lg:top-[116px]">
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-card">
+                <div className="flex items-center gap-3 pb-4 border-b border-gray-100"><div className="w-11 h-11 bg-blue-800 rounded-full flex items-center justify-center text-white font-black">EC</div><div><p className="font-bold text-gray-900">Executive Cars</p><p className="inline-flex items-center gap-1 text-xs text-green-700 mt-0.5"><CheckCircle2 className="w-3.5 h-3.5" /> Verified showroom</p></div></div>
+                <p className="text-sm text-gray-500 leading-6 my-4">Ask about availability, the inspection report, or book a showroom viewing.</p>
+                <div className="space-y-2.5">
+                  <a href="tel:+923001234567" className="btn-primary w-full py-3 text-sm gap-2"><Phone className="w-4 h-4" /> Call +92 300 1234567</a>
+                  <a href={`mailto:${sellerEmail}?subject=${encodeURIComponent(`${car.make} ${car.model} ${car.year} enquiry`)}`} className="btn-brand w-full py-3 text-sm gap-2"><MessageSquare className="w-4 h-4" /> Message showroom</a>
+                </div>
+                <p className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 mt-4"><Mail className="w-3.5 h-3.5" /> {sellerEmail}</p>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-card">
+                <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-blue-700" /><h3 className="font-bold text-gray-900">Inspection report</h3></div>
+                <p className="text-xs text-gray-500 leading-5 mt-2">A detailed vehicle report is available from the showroom team.</p>
+                {car.pdfUrl ? <a href={car.pdfUrl} target="_blank" rel="noreferrer" className="btn-ghost w-full py-2.5 text-xs mt-4">View report</a> : <a href={`mailto:${sellerEmail}?subject=Inspection report request`} className="btn-ghost w-full py-2.5 text-xs mt-4">Request report</a>}
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><div className="flex gap-3"><AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" /><div><p className="text-sm font-bold text-amber-900">Safety reminder</p><p className="text-xs text-amber-800/75 leading-5 mt-1">Never send advance payment before inspecting the car and verifying its documents.</p></div></div></div>
+            </aside>
+          </div>
+        </main>
+      </div>
       <Footer />
     </div>
   )
+}
+
+function PageState({ children }) {
+  return <div className="min-h-screen bg-[#f5f7f9] flex flex-col"><Navbar /><main className="flex-1 pt-[68px] md:pt-[100px] flex items-center justify-center px-4">{children}</main><Footer /></div>
 }

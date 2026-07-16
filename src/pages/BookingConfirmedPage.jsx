@@ -52,15 +52,15 @@ export default function BookingConfirmedPage() {
 
         <p className="text-gray-500 text-sm mb-6">
           Our team will review your booking and contact you within 24 hours.
-          Once approved, you'll receive your seller login credentials by email.
+          This request stays connected to your unified Executive Cars account. If you do not have one yet, approval creates it for you.
         </p>
 
         <div className="flex flex-col gap-3">
           <Link to="/" className="btn-primary py-3.5 rounded-xl font-semibold text-sm shadow-md shadow-blue-200">
             Back to Home
           </Link>
-          <Link to="/login" className="btn-ghost py-3.5 rounded-xl font-semibold text-sm">
-            Already have credentials? Login →
+          <Link to="/account" className="btn-ghost py-3.5 rounded-xl font-semibold text-sm">
+            View My Account →
           </Link>
         </div>
       </div>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, ClipboardCheck, Car, Gavel, User, LogOut, Bell, Menu, X } from 'lucide-react'
+import { LayoutDashboard, ClipboardCheck, PlusCircle, Car, Gavel, User, LogOut, Bell, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import Logo from './Logo.jsx'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard',      to: '/seller/dashboard'      },
+  { icon: PlusCircle,      label: 'Book Inspection', to: '/seller/book-inspection' },
   { icon: ClipboardCheck,  label: 'My Bookings',    to: '/seller/bookings'       },
   { icon: Car,             label: 'My Listings',    to: '/seller/listings'       },
   { icon: Gavel,           label: 'Auction Status', to: '/seller/auction-status' },
@@ -43,7 +44,7 @@ export default function SellerLayout({ children, title }) {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 location.pathname === item.to
                   ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-transparent'
               }`}
             >
               <item.icon className="w-4 h-4 shrink-0" />
@@ -59,7 +60,7 @@ export default function SellerLayout({ children, title }) {
             </div>
             <div className="min-w-0">
               <p className="text-gray-900 font-semibold text-xs truncate">{user?.name || 'Seller'}</p>
-              <p className="text-blue-600 text-xs font-medium">Verified Seller</p>
+              <p className="text-blue-600 text-xs font-medium">Unified Account</p>
             </div>
           </div>
         </div>
@@ -91,7 +92,7 @@ export default function SellerLayout({ children, title }) {
           <h1 className="text-gray-900 font-bold text-lg">{title}</h1>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden sm:block badge-blue text-xs px-3 py-1.5 rounded-full font-semibold">
-              Verified Seller
+              Selling Tools
             </span>
             <button className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-700 relative">
               <Bell className="w-4 h-4" />

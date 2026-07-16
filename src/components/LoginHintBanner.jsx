@@ -15,7 +15,7 @@ const ACCOUNTS = [
     dot: 'bg-purple-500',
   },
   {
-    role: 'Seller',
+    role: 'Legacy Seller',
     icon: Car,
     email: 'seller@executivecars.pk',
     password: 'seller123',
@@ -26,7 +26,7 @@ const ACCOUNTS = [
     dot: 'bg-green-500',
   },
   {
-    role: 'Buyer',
+    role: 'Customer',
     icon: Gavel,
     email: 'buyer@executivecars.pk',
     password: 'buyer123',
@@ -37,7 +37,7 @@ const ACCOUNTS = [
     dot: 'bg-blue-500',
   },
   {
-    role: 'Buyer 2',
+    role: 'Customer 2',
     icon: Gavel,
     email: 'hasnain@test.com',
     password: 'test123',
@@ -58,14 +58,14 @@ export default function LoginHintBanner() {
   if (!open) return (
     <button
       onClick={() => setOpen(true)}
-      className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 text-sm font-semibold hover:bg-blue-700 transition-colors"
+      className="fixed bottom-4 left-4 z-50 bg-blue-600 text-white px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 text-sm font-semibold hover:bg-blue-700 transition-colors"
     >
       <KeyRound className="w-4 h-4" /> Test Logins
     </button>
   )
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-72 bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden">
+    <div className="fixed bottom-4 left-4 z-50 w-72 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-blue-600">
         <div className="flex items-center gap-2">

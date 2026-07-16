@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload, X, FileText, CheckCircle, Gavel, ChevronDown } from 'lucide-react'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import AdminOwnerSelect, { useAdminOwners } from '../../components/AdminOwnerSelect.jsx'
 import { BRANDS, MODELS } from '../../data/carBrands.js'
 import api from '../../api/api.js'
 const colors = ['White', 'Black', 'Silver', 'Grey', 'Red', 'Blue', 'Brown', 'Green', 'Orange']
@@ -11,7 +12,7 @@ export default function AdminUploadAuctionPage() {
   const [form, setForm] = useState({
     make: '', model: '', year: '', mileage: '', engine: '',
     transmission: 'Auto', fuel: 'Petrol', color: '',
-    basePrice: '', startDate: '', endDate: '', notes: '',
+    basePrice: '', startDate: '', endDate: '', notes: '', ownerId: '',
   })
   const [images, setImages] = useState([])
   const [report, setReport] = useState(null)
@@ -19,6 +20,7 @@ export default function AdminUploadAuctionPage() {
   const [saved, setSaved] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const [errors, setErrors] = useState({})
+  const { owners, loadingOwners } = useAdminOwners()
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -66,11 +68,12 @@ export default function AdminUploadAuctionPage() {
       fd.append('auctionStart', form.startDate)
       fd.append('auctionEnd', form.endDate)
       fd.append('description', form.notes)
+      fd.append('ownerId', form.ownerId)
       images.forEach(img => fd.append('images', img))
       if (report) fd.append('report', report)
-      await api.post('/admin/cars', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      await api.post('/admin/cars', fd)
       setSaved(true)
-      setForm({ make: '', model: '', year: '', mileage: '', engine: '', transmission: 'Auto', fuel: 'Petrol', color: '', basePrice: '', startDate: '', endDate: '', notes: '' })
+      setForm({ make: '', model: '', year: '', mileage: '', engine: '', transmission: 'Auto', fuel: 'Petrol', color: '', basePrice: '', startDate: '', endDate: '', notes: '', ownerId: '' })
       setImages([])
       setReport(null)
       setResetKey(k => k + 1)
@@ -222,6 +225,7 @@ export default function AdminUploadAuctionPage() {
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h3 className="text-gray-900 font-bold mb-5">Auction Settings</h3>
               <div className="space-y-4">
+                <AdminOwnerSelect value={form.ownerId} onChange={value => update('ownerId', value)} owners={owners} loading={loadingOwners} />
                 <div>
                   <label className="block text-sm text-gray-600 font-medium mb-1.5">Base Price (PKR)</label>
                   <input

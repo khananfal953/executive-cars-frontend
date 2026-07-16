@@ -15,7 +15,7 @@ const perks = [
 
 export default function AuctionSignupPage() {
   const navigate = useNavigate()
-  const { registerMember } = useAuth()
+  const { user, registerMember } = useAuth()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', terms: false })
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -46,6 +46,22 @@ export default function AuctionSignupPage() {
     } else {
       setErrors({ email: result.message || 'Registration failed. Try a different email.' })
     }
+  }
+
+  if (user?.role === 'user') {
+    const active = user.subscriptionStatus === 'active'
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-elevated p-8 max-w-md w-full text-center">
+          <Logo className="w-11 h-11 mx-auto" />
+          <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mt-7"><Crown className="w-7 h-7 text-blue-600" /></div>
+          <h1 className="text-2xl font-black text-gray-900 mt-5">Your account is ready</h1>
+          <p className="text-sm text-gray-500 leading-6 mt-2">You do not need another auction account. {active ? 'Your auction membership is already active.' : 'Activate auction access on this same account.'}</p>
+          <Link to={active ? '/auction/dashboard' : '/auction/payment'} className="btn-primary w-full py-3.5 text-sm gap-2 mt-7">{active ? 'Open Auction Dashboard' : 'Continue to Membership Payment'} <ArrowRight className="w-4 h-4" /></Link>
+          <Link to="/account" className="inline-block text-sm text-blue-600 hover:underline mt-5">Back to my account</Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -97,7 +113,8 @@ export default function AuctionSignupPage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-black text-gray-900 mb-6">Create Your Account</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-2">Create Your Unified Account</h2>
+          <p className="text-sm text-gray-500 mb-6">This account also works for buying and selling cars.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {[
@@ -151,8 +168,8 @@ export default function AuctionSignupPage() {
           </form>
 
           <p className="text-center text-gray-500 text-sm mt-6">
-            Already a member?{' '}
-            <Link to="/login" className="text-blue-600 font-medium hover:underline">Login here</Link>
+            Already have an Executive Cars account?{' '}
+            <Link to="/login" className="text-blue-600 font-medium hover:underline">Sign in here</Link>
           </p>
         </div>
       </div>

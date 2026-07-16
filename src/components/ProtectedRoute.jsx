@@ -1,16 +1,18 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
-const LOGIN_PATHS = {
-  buyer:  '/login',
-  admin:  '/admin/login',
-  seller: '/login',
-}
-
-export default function ProtectedRoute({ role, children }) {
+export default function ProtectedRoute({ role = 'user', capability, children }) {
   const { user } = useAuth()
+  const location = useLocation()
+
   if (!user || user.role !== role) {
-    return <Navigate to={LOGIN_PATHS[role] ?? '/'} replace />
+    const loginPath = role === 'admin' ? '/admin/login' : '/login'
+    return <Navigate to={loginPath} state={{ from: location.pathname }} replace />
   }
+
+  if (capability === 'auction' && user.subscriptionStatus !== 'active') {
+    return <Navigate to="/auction/payment" replace />
+  }
+
   return children
 }

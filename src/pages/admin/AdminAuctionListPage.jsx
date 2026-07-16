@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Search, Plus, Pencil, Trash2, X, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import AdminLayout from '../../components/AdminLayout.jsx'
+import AdminOwnerSelect, { ownerValue, useAdminOwners } from '../../components/AdminOwnerSelect.jsx'
 import { formatPKR } from '../../utils/format.js'
 import api from '../../api/api.js'
 
@@ -12,6 +13,7 @@ export default function AdminAuctionListPage() {
   const [statusFilter, setStatusFilter] = useState('All')
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [editTarget, setEditTarget] = useState(null)
+  const { owners, loadingOwners } = useAdminOwners()
 
   useEffect(() => {
     api.get('/admin/cars')
@@ -21,7 +23,8 @@ export default function AdminAuctionListPage() {
   }, [])
 
   const filtered = auctions.filter(a => {
-    const matchSearch = `${a.make} ${a.model}`.toLowerCase().includes(search.toLowerCase())
+    const ownerText = `${a.ownerId?.name || ''} ${a.ownerId?.email || a.sellerEmail || ''}`
+    const matchSearch = `${a.make} ${a.model} ${ownerText}`.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === 'All' || a.status === statusFilter.toLowerCase()
     return matchSearch && matchStatus
   })
@@ -42,6 +45,7 @@ export default function AdminAuctionListPage() {
         year: Number(editTarget.year),
         basePrice: Number(editTarget.basePrice),
         auctionEnd: editTarget.auctionEnd,
+        ownerId: ownerValue(editTarget.ownerId),
       }
       const { data } = await api.put(`/admin/cars/${editTarget._id}`, payload)
       setAuctions(prev => prev.map(a => a._id === editTarget._id ? data : a))
@@ -83,14 +87,14 @@ export default function AdminAuctionListPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  {['Car', 'Year', 'Base Price', 'Current Bid', 'End Date', 'Status', 'Actions'].map(h => (
+                  {['Car', 'Owner', 'Year', 'Base Price', 'Current Bid', 'End Date', 'Status', 'Actions'].map(h => (
                     <th key={h} className="text-left px-4 py-4 text-gray-500 text-xs font-semibold uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={7} className="text-center py-16 text-gray-400"><Search className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>No auctions found.</p></td></tr>
+                  <tr><td colSpan={8} className="text-center py-16 text-gray-400"><Search className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>No auctions found.</p></td></tr>
                 ) : filtered.map(a => {
                   const daysLeft = getDaysLeft(a.auctionEnd)
                   return (
@@ -100,6 +104,10 @@ export default function AdminAuctionListPage() {
                           <div className="w-10 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-black text-sm">{a.make?.[0]}</div>
                           <span className="text-gray-900 font-medium text-sm">{a.make} {a.model}</span>
                         </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="text-gray-700 text-sm font-medium">{a.ownerId?.name || 'Executive Cars'}</p>
+                        <p className="text-gray-400 text-xs">{a.ownerId?.email || a.sellerEmail || 'Showroom owned'}</p>
                       </td>
                       <td className="px-4 py-4 text-gray-500 text-sm">{a.year}</td>
                       <td className="px-4 py-4 text-gray-700 text-sm">PKR {formatPKR(a.basePrice)}</td>
@@ -163,6 +171,12 @@ export default function AdminAuctionListPage() {
               <button onClick={() => setEditTarget(null)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <div className="space-y-4">
+              <AdminOwnerSelect
+                value={editTarget.ownerId}
+                onChange={value => setEditTarget(prev => ({ ...prev, ownerId: value }))}
+                owners={owners}
+                loading={loadingOwners}
+              />
               {[
                 { label: 'Make', key: 'make' },
                 { label: 'Model', key: 'model' },
